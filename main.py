@@ -1,6 +1,8 @@
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
 from views.view_ui import Ui_mainWindow
 import sys
 from models.model import Model
@@ -13,6 +15,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow):
         self.model = Model()
 
         self.send_button.clicked.connect(self.button_clicked)
+        self.actionOfficial_website.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://theqrl.org")))
 
 
     def button_clicked(self):
