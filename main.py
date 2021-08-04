@@ -16,6 +16,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow):
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionOfficial_website.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://theqrl.org")))
+        self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://raw.githubusercontent.com/theQRL/Whitepaper/master/QRL_whitepaper.pdf")))
 
 
     def button_clicked(self):
