@@ -18,6 +18,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form):
 
         # self.button(QWizard.NextButton).clicked.connect(self.desired_method) 
 
+
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
         self.actionOfficial_website.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://theqrl.org")))
