@@ -5,26 +5,32 @@ from main import QrlWallet
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
-        super(MyWizard, self).__init__(parent)
+        super().__init__(parent)
+
 
         self.introPage = IntroPage()
         self.firstPageOptionA = FirstPageOptionA()
         self.lastPage = LastPage()
-        self.setPage(0, self.introPage)
-        self.setPage(1, self.firstPageOptionA)
-        self.setPage(2, self.lastPage)
+        self.addPage(self.introPage)
+        self.addPage(self.firstPageOptionA)
+        self.addPage(self.lastPage)
+        # self.setPage(0, self.introPage)
+        # self.setPage(1, self.firstPageOptionA)
+        # self.setPage(2, self.lastPage)
 
-        self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self._doSomething)
+        self.button(QWizard.NextButton).clicked.connect(self._nextPage)
+    def _nextPage(self):
+        if self.currentPage() == self.introPage:
+            if self.introPage == self.introPage.radiobutton_1.isChecked():
+                return self.currentId() + 2
+        # if self.introPage.radiobutton_1.isChecked():
+        #     return self.currentId + 2
 
-    def _doSomething(self):
-        msgBox = QtWidgets.QMessageBox()
-        msgBox.setText("Yep, its connected.")
-        msgBox.exec()
+
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
-        super(IntroPage, self).__init__(parent)
-
+        super().__init__(parent)
         
         self.setTitle("Welcome to QRL Light Wallet!")
 
@@ -39,13 +45,10 @@ class IntroPage(QtWidgets.QWizardPage):
         layout.addWidget(self.radiobutton_2)
         layout.addWidget(self.radiobutton_3)
 
-    def _nextPage(self):
-        if self.radiobutton_1.isChecked():
-            self.nextId()
-
 class FirstPageOptionA(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
-        super(FirstPageOptionA, self).__init__(parent)
+        super().__init__(parent)
+
 
         self.NameLabel = QLabel("&Name:")
         self.NameLineEdit = QLineEdit()
@@ -57,15 +60,25 @@ class FirstPageOptionA(QtWidgets.QWizardPage):
 
 class SecondPageOptionB(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
-        super(SecondPageOptionB, self).__init__(parent)
+        super().__init__(parent)
+
 
 class ThirdPageOptionC(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
-        super(ThirdPageOptionC, self).__init__(parent)
+        super().__init__(parent)
+
 
 class LastPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
-        super(LastPage, self).__init__(parent)
+        super().__init__(parent)
+        self.NameLabel = QLabel("&ummm:")
+        self.NameLineEdit = QLineEdit()
+        self.NameLabel.setBuddy(self.NameLineEdit)
+
+        layout = QHBoxLayout(self)
+        layout.addWidget(self.NameLabel)
+        layout.addWidget(self.NameLineEdit)
+
 
 
 if __name__ == '__main__':
