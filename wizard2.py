@@ -3,6 +3,9 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from main import QrlWallet
+from Naked.toolshed.shell import execute_js, muterun_js
+import Naked.toolshed.shell
+import subprocess
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
@@ -25,7 +28,7 @@ class MyWizard(QtWidgets.QWizard):
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
-
+        
         self.setTitle("Welcome to QRL Light Wallet!")
 
         self.label_description = QLabel("Select option:")
