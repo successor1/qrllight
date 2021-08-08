@@ -3,8 +3,6 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from main import QrlWallet
-from Naked.toolshed.shell import execute_js, muterun_js
-import Naked.toolshed.shell
 import subprocess
 
 class MyWizard(QtWidgets.QWizard):
@@ -12,7 +10,7 @@ class MyWizard(QtWidgets.QWizard):
         super().__init__(parent)
 
         self.introPage = IntroPage()
-        self.firstPageOptionA = FirstPageOptionA()
+        self.firstPageOptionA = FirstPageOptionA(self)
         self.SecondPageOptionA = SecondPageOptionA()
         self.secondPageOptionB = SecondPageOptionB()
         self.thirdPageOptionC = ThirdPageOptionC()
@@ -23,6 +21,15 @@ class MyWizard(QtWidgets.QWizard):
         self.addPage(self.secondPageOptionB)
         self.addPage(self.thirdPageOptionC)
         self.addPage(self.lastPage)
+
+
+        self.currentIdChanged.connect(self.next_callback)
+
+
+    def next_callback(self, page_id: int):
+        if page_id == 2 and self.last_page_id == 1:
+            subprocess.call('run.cmd status', shell=True, cwd=r'C:\Users\31622\Documents\qrl-cli\bin')
+        self.last_page_id = page_id
 
 
 class IntroPage(QtWidgets.QWizardPage):
