@@ -3,3 +3,4 @@ __pycache__/
 /views/__pycache__/
 .pyc/
 .gitignore
+env/
