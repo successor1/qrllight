@@ -27,13 +27,13 @@ class Model:
         recovered_xmss = XMSS.from_extended_seed(bin_seed)
         print(recovered_xmss.qaddress)
 
-    def getAddressBalance():
-        address = "Q01050048f13d469bd98bd83ae31427e6fd980a299016cfbbfe6802e36123c42e98350d4103e983"
-        request = requests.get('https://explorer.theqrl.org/api/a/'+address)
-        response = request.text
-        getAddressResp = json.loads(response)
-        jsonResponse = getAddressResp
-        print(jsonResponse)
+    # def getAddressBalance():
+    #     address = "Q01050048f13d469bd98bd83ae31427e6fd980a299016cfbbfe6802e36123c42e98350d4103e983"
+    #     request = requests.get('https://explorer.theqrl.org/api/a/'+address)
+    #     response = request.text
+    #     getAddressResp = json.loads(response)
+    #     jsonResponse = getAddressResp
+    #     print(jsonResponse)
 
 
 Model.getAddressBalance()

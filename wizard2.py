@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from main import QrlWallet
 import subprocess
+from models.model import Model
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
@@ -28,7 +29,7 @@ class MyWizard(QtWidgets.QWizard):
 
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
-            subprocess.call('run.cmd status', shell=True, cwd=r'C:\Users\31622\Documents\qrl-cli\bin')
+            print(Model.getAddress())
         self.last_page_id = page_id
 
 
