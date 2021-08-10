@@ -82,6 +82,7 @@ class FirstPageOptionA(QtWidgets.QWizardPage):
 
         self.password_label = QLabel("Password (optional):")
         self.passwordline_edit = QLineEdit(self)
+        self.passwordline_edit.setEchoMode(2)
 
 
         self.combo_height = QComboBox(self)
