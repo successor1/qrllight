@@ -78,7 +78,7 @@ class FirstPageOptionA(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setTitle("Create wallet!")
+        self.setTitle("Create wallet")
 
         self.password_label = QLabel("Password (optional):")
         self.passwordline_edit = QLineEdit(self)
@@ -144,6 +144,9 @@ class SecondPageOptionA(QtWidgets.QWizardPage):
         layout.addWidget(self.hexseed_description)
         layout.addWidget(self.hexseed)
 
+    def nextId(self) -> int:
+        return 5
+
 class SecondPageOptionB(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -199,14 +202,7 @@ class ThirdPageOptionC(QtWidgets.QWizardPage):
 class LastPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.NameLabel = QLabel("last page:")
-        self.NameLineEdit = QLineEdit()
-        self.NameLabel.setBuddy(self.NameLineEdit)
-
-        layout = QHBoxLayout(self)
-        layout.addWidget(self.NameLabel)
-        layout.addWidget(self.NameLineEdit)
-
+        self.setTitle("Success!")
 
 
 if __name__ == '__main__':
