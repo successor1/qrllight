@@ -11,15 +11,15 @@ from qrl.core.Wallet import Wallet, WalletDecryptionError
 
 class Model:
     def __init__(self):
-        xmss_height = 10
-        xmss_hash = SHAKE_256
-        self.xmss_height = xmss_height
-        self.xmss_hash = SHAKE_256
+        pass
         
     def getAddress(xmss_height, xmss_hash):
         seed = getRandomSeed(48, '')
         xmss = XMSS(XmssFast(seed, xmss_height, xmss_hash))
-        print(xmss.qaddress)
+        return xmss.qaddress, xmss.mnemonic, xmss.hexseed
+        # print(xmss.qaddress)
+        # print(xmss.mnemonic)
+        # print(xmss.hexseed)
     def getMnemonic():
         xmss_height = 10
         seed = getRandomSeed(48, '')
