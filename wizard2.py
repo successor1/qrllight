@@ -5,6 +5,8 @@ from PyQt5.QtCore import *
 from main import QrlWallet
 import subprocess
 from models.model import Model
+from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
+
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
@@ -29,7 +31,7 @@ class MyWizard(QtWidgets.QWizard):
 
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
-            print(Model.getAddress())
+            return Model.getAddress(10, SHAKE_256)
         self.last_page_id = page_id
 
 
@@ -67,20 +69,31 @@ class FirstPageOptionA(QtWidgets.QWizardPage):
 
         self.setTitle("Create wallet!")
 
-        self.name_label = QLabel("Name:")
-        self.nameline_edit = QLineEdit()
         self.password_label = QLabel("Password (optional):")
-        self.passwordline_edit = QLineEdit()
-        self.directory_label = QLabel("Directory:")
-        self.directoryline_edit = QLineEdit()
+        self.passwordline_edit = QLineEdit(self)
+
+
+        self.combo_height = QComboBox(self)
+        self.combo_height.addItem("Tree height: 8 | Signatures: 256")
+        self.combo_height.addItem("Tree height: 10 | Signatures: 1,024")
+        self.combo_height.addItem("Tree height: 12 | Signatures: 4,096")
+        self.combo_height.addItem("Tree height: 14 | Signatures: 16,384")
+        self.combo_height.addItem("Tree height: 16 | Signatures: 65,536")
+        self.combo_height.addItem("Tree height: 18 | Signatures: 262,144")
+
+        self.combo_hash = QComboBox(self)
+        self.combo_hash.addItem("Hash function: SHAKE_128")
+        self.combo_hash.addItem("Hash function: SHAKE_256")
+        self.combo_hash.addItem("Hash function: SHA2_256")
 
         layout = QVBoxLayout(self)
-        layout.addWidget(self.name_label)
-        layout.addWidget(self.nameline_edit)
         layout.addWidget(self.password_label)
         layout.addWidget(self.passwordline_edit)
-        layout.addWidget(self.directory_label)
-        layout.addWidget(self.directoryline_edit)
+        layout.addWidget(self.combo_height)
+        layout.addWidget(self.combo_hash)
+
+
+
 
     def nextId(self) -> int:
         return 2
