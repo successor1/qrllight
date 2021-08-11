@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from main import QrlWallet
 import subprocess
 from models.model import Model
+from models.aes import AESModel
 from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
 
 
@@ -28,6 +29,7 @@ class MyWizard(QtWidgets.QWizard):
 
 
         self.currentIdChanged.connect(self.next_callback)
+        self.SecondPageOptionA.save_wallet_file.clicked.connect(self.saveFile)
 
 
 
@@ -35,6 +37,9 @@ class MyWizard(QtWidgets.QWizard):
         if page_id == 2 and self.last_page_id == 1:
             combo_height_short = self.firstPageOptionA.combo_height
             combo_hash_short = self.firstPageOptionA.combo_hash
+            my_password = self.firstPageOptionA.passwordline_edit.text()
+            print(my_password)
+            print(page_id)
             if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
                 combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
                 combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
@@ -42,9 +47,22 @@ class MyWizard(QtWidgets.QWizard):
             self.SecondPageOptionA.qaddress.setText(qaddress)
             self.SecondPageOptionA.mnemonic.setText(mnemonic + "\n" + "\n")
             self.SecondPageOptionA.hexseed.setText(hexseed)
-            balance = Model.getAddressBalance(qaddress)
-            mainWindow.balance_label.setText(str(balance))
+            # balance = Model.getAddressBalance(qaddress)
+            # mainWindow.balance_label.setText(str(balance))
         self.last_page_id = page_id
+    
+    def saveFile(self):
+        file_filter = 'Json file (*.json)'
+        dialog_save_file_name = QFileDialog.getSaveFileName(
+            parent=self,
+            caption='Save file',
+            directory= 'wallet.json',
+            filter=file_filter,
+            initialFilter='Json file (*.json)')
+        password = self.next_callback(2).my_password
+        dialog = open(dialog_save_file_name[0], "w")
+        dialog.write(AESModel.encrypt(secret_message, password) + "\n" + AESModel.encrypt(secret_message, password))
+        dialog.close()
 
 
 class IntroPage(QtWidgets.QWizardPage):
@@ -84,7 +102,7 @@ class FirstPageOptionA(QtWidgets.QWizardPage):
         self.password_label = QLabel("Password (optional):")
         self.passwordline_edit = QLineEdit(self)
         self.passwordline_edit.setEchoMode(2)
-
+        self.passwordline_edit.setPlaceholderText("Enter password")
 
         self.combo_height = QComboBox(self)
         self.combo_height.addItem("Tree height: 8 | Signatures: 256")
@@ -121,6 +139,9 @@ class SecondPageOptionA(QtWidgets.QWizardPage):
         self.hexseed_description = QLabel("Hexseed:")
         self.hexseed = QLabel()
 
+        self.save_wallet_file = QPushButton('Save secure wallet file')
+
+
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
 
@@ -145,6 +166,7 @@ class SecondPageOptionA(QtWidgets.QWizardPage):
         layout.addWidget(self.mnemonic)
         layout.addWidget(self.hexseed_description)
         layout.addWidget(self.hexseed)
+        layout.addWidget(self.save_wallet_file)
 
     def nextId(self) -> int:
         return 5
@@ -186,6 +208,9 @@ class SecondPageOptionB(QtWidgets.QWizardPage):
         # if user selected a file store its path to a variable
         if fileName:
             self.wizard().variable = fileName
+
+    def nextId(self) -> int:
+        return 5
 
 class ThirdPageOptionC(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
