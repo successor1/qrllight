@@ -7,6 +7,7 @@ import subprocess
 from models.model import Model
 from models.aes import AESModel
 from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
+import json
 
 
 class MyWizard(QtWidgets.QWizard):
@@ -30,6 +31,7 @@ class MyWizard(QtWidgets.QWizard):
 
         self.currentIdChanged.connect(self.next_callback)
         self.SecondPageOptionA.save_wallet_file.clicked.connect(self.saveFile)
+        self.secondPageOptionB.openFileBtn.clicked.connect(self.openFile)
 
 
 
@@ -37,9 +39,6 @@ class MyWizard(QtWidgets.QWizard):
         if page_id == 2 and self.last_page_id == 1:
             combo_height_short = self.firstPageOptionA.combo_height
             combo_hash_short = self.firstPageOptionA.combo_hash
-            my_password = self.firstPageOptionA.passwordline_edit.text()
-            print(my_password)
-            print(page_id)
             if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
                 combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
                 combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
@@ -59,11 +58,21 @@ class MyWizard(QtWidgets.QWizard):
             directory= 'wallet.json',
             filter=file_filter,
             initialFilter='Json file (*.json)')
-        password = self.next_callback(2).my_password
         dialog = open(dialog_save_file_name[0], "w")
-        dialog.write(AESModel.encrypt(secret_message, password) + "\n" + AESModel.encrypt(secret_message, password))
+        dialog.write(json.dumps(AESModel.encrypt(self.SecondPageOptionA.qaddress.toPlainText() + " " + self.SecondPageOptionA.mnemonic.text().rstrip() + " " + self.SecondPageOptionA.hexseed.text(), self.firstPageOptionA.passwordline_edit.text())))
         dialog.close()
 
+    def openFile(self):
+        file_filter = 'Json file (*.json)'
+        dialog_save_file_name = QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Open file',
+            directory= '.json',
+            filter=file_filter,
+            initialFilter='Json file (*.json)')
+        dialog = open(dialog_save_file_name[0], "w")
+        dialog.write(json.dumps(AESModel.encrypt(self.SecondPageOptionA.qaddress.toPlainText() + " " + self.SecondPageOptionA.mnemonic.text().rstrip() + " " + self.SecondPageOptionA.hexseed.text(), self.firstPageOptionA.passwordline_edit.text())))
+        dialog.close()
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -176,38 +185,27 @@ class SecondPageOptionB(QtWidgets.QWizardPage):
         super().__init__(parent)
         self.setTitle("Open wallet file")
 
-        # self.openFileBtn = QtWidgets.QPushButton("Import wallet key file")
-        # layout = QtWidgets.QVBoxLayout()
-        # layout.addWidget(self.openFileBtn)
-        # self.setLayout(layout)
-        # self.openFileBtn.clicked.connect(self.openFileNameDialog)
+        self.password_qlabel = QLabel("Password (optional):")
+        self.passwordline_edit = QLineEdit()
+        self.passwordline_edit.setEchoMode(2)
+        self.passwordline_edit.setPlaceholderText("Enter password")
+        self.openFileBtn = QPushButton("Import secure wallet file")
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.password_qlabel)
+        layout.addWidget(self.passwordline_edit)
+        layout.addWidget(self.openFileBtn)
+        self.setLayout(layout)
 
-        self.model = QFileSystemModel()
-        self.model.setRootPath(r'C:\Users\31622\Documents')
-        self.tree = QTreeView()
-        self.tree.setModel(self.model)
-        self.tree.setRootIndex(self.model.index(r'C:\Users\31622\Documents'))
-        
-        self.tree.setAnimated(False)
-        self.tree.setIndentation(20)
-        self.tree.setSortingEnabled(True)
-        self.tree.setWindowTitle("Dir View")
-        self.tree.resize(640, 480)
-        
-        windowLayout = QVBoxLayout()
-        windowLayout.addWidget(self.tree)
-        self.setLayout(windowLayout)
-
-    @QtCore.pyqtSlot()
-    def openFileNameDialog(self):
-        options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "QFileDialog.getOpenFileName()", "",
-            "All Files (*);;Python Files (*.py)", options=options)
-        # if user selected a file store its path to a variable
-        if fileName:
-            self.wizard().variable = fileName
+    # @QtCore.pyqtSlot()
+    # def openFileNameDialog(self):
+    #     options = QtWidgets.QFileDialog.Options()
+    #     options |= QtWidgets.QFileDialog.DontUseNativeDialog
+    #     fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
+    #         self, "QFileDialog.getOpenFileName()", "",
+    #         "All Files (*);;Python Files (*.py)", options=options)
+    #     # if user selected a file store its path to a variable
+    #     if fileName:
+    #         self.wizard().variable = fileName
 
     def nextId(self) -> int:
         return 5
