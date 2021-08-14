@@ -28,14 +28,13 @@ class Model:
         xmss = XMSS(XmssFast(seed, xmss_height))
         return xmss.hexseed
 
-    def recoverAddress():
-        seed = ""
-        bin_seed = mnemonic2bin(seed)
+    def recoverAddress(seed):
+        bin_seed = hstr2bin(seed)
         recovered_xmss = XMSS.from_extended_seed(bin_seed)
-        print(recovered_xmss.qaddress)
+        return recovered_xmss.qaddress
 
     def getAddressBalance(address):
-        request = requests.get('https://explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
