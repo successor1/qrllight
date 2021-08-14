@@ -89,7 +89,7 @@ class Ui_mainWindow(object):
         self.public_label_title.setGeometry(QtCore.QRect(330, 20, 161, 16))
         self.public_label_title.setObjectName("public_label_title")
         self.public_label_description = QtWidgets.QLabel(self.receive_tab)
-        self.public_label_description.setGeometry(QtCore.QRect(370, 50, 55, 16))
+        self.public_label_description.setGeometry(QtCore.QRect(84, 50, 671, 20))
         self.public_label_description.setText("")
         self.public_label_description.setObjectName("public_label_description")
         icon3 = QtGui.QIcon()
@@ -228,7 +228,7 @@ class Ui_mainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(mainWindow)
-        self.inner_window.setCurrentIndex(1)
+        self.inner_window.setCurrentIndex(2)
         self.clear_button.clicked.connect(self.send_input.clear)
         self.clear_button.clicked.connect(self.amount_input.clear)
         self.clear_button.clicked.connect(self.description_input.clear)
