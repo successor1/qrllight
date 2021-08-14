@@ -100,34 +100,38 @@ class MyWizard(QtWidgets.QWizard):
         dialog.close()
 
     def openFile(self):
-        file_filter = 'Json file (*.json)'
-        dialog_save_file_name = QFileDialog.getOpenFileName(
+        details = []
+        print(details)
+        if QWizard.finished == True:
+            print(details)
+        else:
+            file_filter = 'Json file (*.json)'
+            dialog_save_file_name = QFileDialog.getOpenFileName(
             parent=self,
             caption='Open file',
             directory= '.json',
             filter=file_filter,
             initialFilter='Json file (*.json)')
-        dialog = open(dialog_save_file_name[0], "r")
-        bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text()))
-        dialog.close()
+            dialog = open(dialog_save_file_name[0], "r")
+            details.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
+            dialog.close()
 
     def onFinished(self):
         qrl_address = []
         mnemonic = []
         hexseed = []
-        if QWizard.hasVisitedPage(main, 2):
+        if QWizard.hasVisitedPage(self, 2):
             qrl_address.append(self.SecondPageOptionA.qaddress.toPlainText())
             mnemonic.append(self.SecondPageOptionA.mnemonic.text().rstrip())
             hexseed.append(self.SecondPageOptionA.hexseed.text())
-        elif QWizard.hasVisitedPage(main, 3):
-            print(main.openFile())
-        elif QWizard.hasVisitedPage(main, 4):
-            qrl_address.append(self.thirdPageOptionC.seedline_edit.text().qaddress)
+        elif QWizard.hasVisitedPage(self, 3):
+            print(self.openFile)
+        elif QWizard.hasVisitedPage(self, 4):
+            qrl_address.append(Model.recoverAddress(self.thirdPageOptionC.seedline_edit.text()))
             hexseed.append(self.thirdPageOptionC.seedline_edit.text())
-        mainWindow.public_label_description.setText(self.SecondPageOptionA.qaddress.toPlainText())
+        mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        print(qrl_address)
-        mainWindow.balance_label.setText( (Model.getAddressBalance(qrl_address[0]) / 1000000000))
+        mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000))
 
 
 class IntroPage(QtWidgets.QWizardPage):
