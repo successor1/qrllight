@@ -4,7 +4,6 @@ from collections import namedtuple
 from decimal import Decimal
 from typing import List
 
-import click
 import grpc
 import simplejson as json
 from google.protobuf.json_format import MessageToJson
@@ -24,6 +23,8 @@ from qrl.core.txs.multisig.MultiSigCreate import MultiSigCreate
 from qrl.core.txs.multisig.MultiSigSpend import MultiSigSpend
 from qrl.crypto.xmss import XMSS, hash_functions
 from qrl.generated import qrl_pb2_grpc, qrl_pb2
+
+from models.model import Model
 
 
 def _quanta_to_shor(x: Decimal, base=Decimal(config.dev.shor_per_quanta)) -> int:
@@ -65,7 +66,7 @@ def tx_transfer(addrs_to, amounts, fee, xmss_pk, src_xmss):
 
         # Sign transaction
     src_xmss = src_xmss
-    ots_key_index = validate_ots_index(5, src_xmss)
+    ots_key_index = validate_ots_index(int(Model.getAddressOtsKeyIndex(src_xmss.qaddress)) + 1, src_xmss)
     src_xmss.set_ots_index(ots_key_index)
     tx.sign(src_xmss)
 

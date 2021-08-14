@@ -13,8 +13,12 @@ import sys
 from models.model import Model
 import models.TransferTransaction
 from wizard import MyWizard
+from models.aes import AESModel
 from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
-
+from qrl.core.misc import logger
+from qrl.crypto.xmss import XMSS
+from qrl.crypto.xmss import XMSS, hash_functions
+from qrl.core.Wallet import Wallet, WalletDecryptionError
 
 import os
 from binascii import hexlify, a2b_base64
@@ -103,17 +107,28 @@ class MyWizard(QtWidgets.QWizard):
             directory= '.json',
             filter=file_filter,
             initialFilter='Json file (*.json)')
-        dialog = open(dialog_save_file_name[0], "w")
-        dialog.write(json.dumps(AESModel.encrypt(self.SecondPageOptionA.qaddress.toPlainText() + " " + self.SecondPageOptionA.mnemonic.text().rstrip() + " " + self.SecondPageOptionA.hexseed.text(), self.firstPageOptionA.passwordline_edit.text())))
+        dialog = open(dialog_save_file_name[0], "r")
+        bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text()))
         dialog.close()
 
-    def onFinished(self, data):
-        if QWizard.hasVisitedPage(self, 2):
-            print(self.SecondPageOptionA.qaddress.toPlainText())
-        elif QWizard.hasVisitedPage(self, 3):
-            print("Last visited option B")
-        elif QWizard.hasVisitedPage(self, 4):
-            print("Last visited option C")
+    def onFinished(self):
+        qrl_address = []
+        mnemonic = []
+        hexseed = []
+        if QWizard.hasVisitedPage(main, 2):
+            qrl_address.append(self.SecondPageOptionA.qaddress.toPlainText())
+            mnemonic.append(self.SecondPageOptionA.mnemonic.text().rstrip())
+            hexseed.append(self.SecondPageOptionA.hexseed.text())
+        elif QWizard.hasVisitedPage(main, 3):
+            print(main.openFile())
+        elif QWizard.hasVisitedPage(main, 4):
+            qrl_address.append(self.thirdPageOptionC.seedline_edit.text().qaddress)
+            hexseed.append(self.thirdPageOptionC.seedline_edit.text())
+        mainWindow.public_label_description.setText(self.SecondPageOptionA.qaddress.toPlainText())
+        mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        print(qrl_address)
+        mainWindow.balance_label.setText( (Model.getAddressBalance(qrl_address[0]) / 1000000000))
+
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -237,17 +252,6 @@ class SecondPageOptionB(QtWidgets.QWizardPage):
         layout.addWidget(self.openFileBtn)
         self.setLayout(layout)
 
-    # @QtCore.pyqtSlot()
-    # def openFileNameDialog(self):
-    #     options = QtWidgets.QFileDialog.Options()
-    #     options |= QtWidgets.QFileDialog.DontUseNativeDialog
-    #     fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-    #         self, "QFileDialog.getOpenFileName()", "",
-    #         "All Files (*);;Python Files (*.py)", options=options)
-    #     # if user selected a file store its path to a variable
-    #     if fileName:
-    #         self.wizard().variable = fileName
-
     def nextId(self) -> int:
         return 5
 
@@ -283,26 +287,30 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://docs.theqrl.org/")))
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://raw.githubusercontent.com/theQRL/Whitepaper/master/QRL_whitepaper.pdf")))
 
-
     def button_clicked(self):
-        wiz = MyWizard(self)
-        if wiz.exec_(**self.data):
-            self.data.update(wiz.getData())
-        # MyWizard.onFinished(QtWidgets.QWizard).variable
-        # print(self.SecondPageOptionA.hexseed.text())
-        # addrs_to = [bytes(hstr2bin(self.send_input.text()))]
-        # amounts = [(float(self.amount_input.text()) * 1 000 000 000)]
-        # fee = "0010000000"
-        # xmss_pk = XMSS.from_extended_seed(hstr2bin("010500f5d40cd11695aba77ee729a680bd8ae18480c34ac4732b0f466aebb4dda64c5a20b5edacb0bd371d313cfe4b27cb73f9")).pk
-        # src_xmss = XMSS.from_extended_seed(hstr2bin("010500f5d40cd11695aba77ee729a680bd8ae18480c34ac4732b0f466aebb4dda64c5a20b5edacb0bd371d313cfe4b27cb73f9"))
-        # models.TransferTransaction.tx_transfer(
-        #     addrs_to,
-        #      amounts,
-        #       fee,
-        #       xmss_pk,
-        #       src_xmss)
-        self.balance_label.setText("you pressed the button")
-        self.update()
+        qrl_address = []
+        mnemonic = []
+        hexseed = []
+        if QWizard.hasVisitedPage(main, 2):
+            qrl_address.append(main.SecondPageOptionA.qaddress.toPlainText())
+            mnemonic.append(main.SecondPageOptionA.mnemonic.text().rstrip())
+            hexseed.append(main.SecondPageOptionA.hexseed.text())
+        elif QWizard.hasVisitedPage(main, 3):
+            print(main.openFile())
+        elif QWizard.hasVisitedPage(main, 4):
+            hexseed.append(main.thirdPageOptionC.seedline_edit.text())
+        addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
+        amounts = [(int(self.amount_input.text()) * 1000000000)]
+        fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
+        xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
+        src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+        models.TransferTransaction.tx_transfer(
+            addrs_to,
+             amounts,
+              fee,
+              xmss_pk,
+              src_xmss)
+        QMessageBox.about(self, "Succesful transaction", "Sent!")
 
     def update(self):
         self.balance_label.adjustSize()
@@ -320,6 +328,6 @@ if __name__ == "__main__":
     mainWindow = QrlWallet()  
     main.hide()
     main.setWindowModality(QtCore.Qt.ApplicationModal)
-    main.show()
     mainWindow.show()
+    main.show()
     sys.exit(app.exec_())
