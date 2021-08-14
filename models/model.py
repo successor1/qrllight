@@ -17,9 +17,6 @@ class Model:
         seed = getRandomSeed(48, '')
         xmss = XMSS(XmssFast(seed, xmss_height, xmss_hash))
         return xmss.qaddress, xmss.mnemonic, xmss.hexseed
-        # print(xmss.qaddress)
-        # print(xmss.mnemonic)
-        # print(xmss.hexseed)
     def getMnemonic():
         xmss_height = 10
         seed = getRandomSeed(48, '')
@@ -43,3 +40,10 @@ class Model:
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["balance"]
+
+    def getAddressOtsKeyIndex(address):
+        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+        response = request.text
+        getAddressResp = json.loads(response)
+        jsonResponse = getAddressResp
+        return jsonResponse["state"]["used_ots_key_count"]

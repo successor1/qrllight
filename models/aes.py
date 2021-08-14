@@ -58,5 +58,3 @@ class AESModel:
         # Let us decrypt using our original password
         decrypted = AESModel.decrypt(encrypted, password)
         print(bytes.decode(decrypted))
-
-
