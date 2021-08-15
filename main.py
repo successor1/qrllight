@@ -12,7 +12,6 @@ from views.about_window import Ui_Form
 import sys
 from models.model import Model
 import models.TransferTransaction
-from wizard import MyWizard
 from models.aes import AESModel
 from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
 from qrl.core.misc import logger
@@ -21,6 +20,7 @@ from qrl.crypto.xmss import XMSS, hash_functions
 from qrl.core.Wallet import Wallet, WalletDecryptionError
 import qrcode
 from PIL import Image
+import re
 
 import os
 from binascii import hexlify, a2b_base64
@@ -322,6 +322,10 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
               xmss_pk,
               src_xmss)
         QMessageBox.about(self, "Succesful transaction", "Sent!")
+        balance_numbers_only = re.sub("[^0-9]", "", self.balance_label.text())
+        update_label = float(float(int(balance_numbers_only) / 1000000000) - float(float(amounts[0])  / 1000000000.0) + (float(fee) / 1000000000.0))
+        self.balance_label.setText("Balance: " + str(update_label) + " QUANTA")
+        self.balance_label.adjustSize()
 
     def update(self):
         self.balance_label.adjustSize()
