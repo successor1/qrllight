@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtGui import *
 from views.view_ui import Ui_mainWindow
 from views.about_window import Ui_Form
 import sys
@@ -19,6 +19,8 @@ from qrl.core.misc import logger
 from qrl.crypto.xmss import XMSS
 from qrl.crypto.xmss import XMSS, hash_functions
 from qrl.core.Wallet import Wallet, WalletDecryptionError
+import qrcode
+from PIL import Image
 
 import os
 from binascii import hexlify, a2b_base64
@@ -131,7 +133,12 @@ class MyWizard(QtWidgets.QWizard):
             hexseed.append(self.thirdPageOptionC.seedline_edit.text())
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000))
+        img = qrcode.make(qrl_address[0])
+        img_saved = img.save("views/images/qr_code.png")
+        mainWindow.pixmap = QPixmap('views/images/qr_code.png')
+        mainWindow.qr_image_label.setPixmap(mainWindow.pixmap)
+        mainWindow.qr_image_label.setScaledContents(True)
+        mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
 
 
 class IntroPage(QtWidgets.QWizardPage):
