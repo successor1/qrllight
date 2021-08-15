@@ -138,8 +138,8 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
         img = qrcode.make(qrl_address[0])
-        img_saved = img.save("views/images/qr_code.png")
-        mainWindow.pixmap = QPixmap('views/images/qr_code.png')
+        img_saved = img.save("qr_code.png")
+        mainWindow.pixmap = QPixmap('qr_code.png')
         mainWindow.qr_image_label.setPixmap(mainWindow.pixmap)
         mainWindow.qr_image_label.setScaledContents(True)
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
@@ -313,12 +313,12 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
         elif QWizard.hasVisitedPage(main, 3):
             print(main.openFile())
         elif QWizard.hasVisitedPage(main, 4):
-            if self.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
-                qrl_address.append(Model.recoverAddressMnemonic(self.thirdPageOptionC.seedline_edit.text()))
-                mnemonic.append(self.thirdPageOptionC.seedline_edit.text())
-            elif self.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
-                qrl_address.append(Model.recoverAddressHexseed(self.thirdPageOptionC.seedline_edit.text()))
-                hexseed.append(self.thirdPageOptionC.seedline_edit.text())
+            if main.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(main.thirdPageOptionC.seedline_edit.text()))
+                mnemonic.append(main.thirdPageOptionC.seedline_edit.text())
+            elif main.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(main.thirdPageOptionC.seedline_edit.text()))
+                hexseed.append(main.thirdPageOptionC.seedline_edit.text())
         addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
         amounts = [(int(self.amount_input.text()) * 1000000000)]
         fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
