@@ -244,13 +244,39 @@
          <string/>
         </property>
        </widget>
+       <widget class="QPushButton" name="view_recovery_seed_btn">
+        <property name="geometry">
+         <rect>
+          <x>288</x>
+          <y>270</y>
+          <width>261</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>View recovery seed</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="qr_image_label">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>80</y>
+          <width>251</width>
+          <height>181</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </widget>
      </widget>
     </item>
     <item>
      <widget class="QLabel" name="balance_label">
       <property name="text">
-       <string>Balance: 2000 QRL</string>
+       <string>Balance: </string>
       </property>
      </widget>
     </item>
@@ -262,7 +288,7 @@
      <x>0</x>
      <y>0</y>
      <width>828</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
