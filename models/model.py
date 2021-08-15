@@ -28,8 +28,13 @@ class Model:
         xmss = XMSS(XmssFast(seed, xmss_height))
         return xmss.hexseed
 
-    def recoverAddress(seed):
+    def recoverAddressHexseed(seed):
         bin_seed = hstr2bin(seed)
+        recovered_xmss = XMSS.from_extended_seed(bin_seed)
+        return recovered_xmss.qaddress
+
+    def recoverAddressMnemonic(seed):
+        bin_seed = mnemonic2bin(seed)
         recovered_xmss = XMSS.from_extended_seed(bin_seed)
         return recovered_xmss.qaddress
 

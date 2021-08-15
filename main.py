@@ -102,20 +102,19 @@ class MyWizard(QtWidgets.QWizard):
         dialog.close()
 
     def openFile(self):
-        details = []
-        print(details)
-        if QWizard.finished == True:
-            print(details)
+        data = []
+        if QWizard.hasVisitedPage(self, 5):
+            print(data)
         else:
             file_filter = 'Json file (*.json)'
             dialog_save_file_name = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Open file',
-            directory= '.json',
-            filter=file_filter,
-            initialFilter='Json file (*.json)')
+                parent=self,
+                caption='Open file',
+                directory= '.json',
+                filter=file_filter,
+                initialFilter='Json file (*.json)')
             dialog = open(dialog_save_file_name[0], "r")
-            details.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
+            data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
             dialog.close()
 
     def onFinished(self):
@@ -127,10 +126,15 @@ class MyWizard(QtWidgets.QWizard):
             mnemonic.append(self.SecondPageOptionA.mnemonic.text().rstrip())
             hexseed.append(self.SecondPageOptionA.hexseed.text())
         elif QWizard.hasVisitedPage(self, 3):
-            print(self.openFile)
+            print(main.openFile)
+            qrl_address.append(self.openFile[0])
         elif QWizard.hasVisitedPage(self, 4):
-            qrl_address.append(Model.recoverAddress(self.thirdPageOptionC.seedline_edit.text()))
-            hexseed.append(self.thirdPageOptionC.seedline_edit.text())
+            if self.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(self.thirdPageOptionC.seedline_edit.text()))
+                mnemonic.append(self.thirdPageOptionC.seedline_edit.text())
+            elif self.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(self.thirdPageOptionC.seedline_edit.text()))
+                hexseed.append(self.thirdPageOptionC.seedline_edit.text())
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
         img = qrcode.make(qrl_address[0])
@@ -309,7 +313,12 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
         elif QWizard.hasVisitedPage(main, 3):
             print(main.openFile())
         elif QWizard.hasVisitedPage(main, 4):
-            hexseed.append(main.thirdPageOptionC.seedline_edit.text())
+            if self.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(self.thirdPageOptionC.seedline_edit.text()))
+                mnemonic.append(self.thirdPageOptionC.seedline_edit.text())
+            elif self.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(self.thirdPageOptionC.seedline_edit.text()))
+                hexseed.append(self.thirdPageOptionC.seedline_edit.text())
         addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
         amounts = [(int(self.amount_input.text()) * 1000000000)]
         fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
