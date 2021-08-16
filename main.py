@@ -101,21 +101,18 @@ class MyWizard(QtWidgets.QWizard):
         dialog.write(json.dumps(AESModel.encrypt(self.SecondPageOptionA.qaddress.toPlainText() + " " + self.SecondPageOptionA.mnemonic.text().rstrip() + " " + self.SecondPageOptionA.hexseed.text(), self.firstPageOptionA.passwordline_edit.text())))
         dialog.close()
 
-    def openFile(self):
-        data = []
-        if QWizard.hasVisitedPage(self, 5):
-            print(data)
-        else:
-            file_filter = 'Json file (*.json)'
-            dialog_save_file_name = QFileDialog.getOpenFileName(
+    data = []
+    def openFile(self) -> int:
+        file_filter = 'Json file (*.json)'
+        dialog_save_file_name = QFileDialog.getOpenFileName(
                 parent=self,
                 caption='Open file',
                 directory= '.json',
                 filter=file_filter,
                 initialFilter='Json file (*.json)')
-            dialog = open(dialog_save_file_name[0], "r")
-            data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
-            dialog.close()
+        dialog = open(dialog_save_file_name[0], "r")
+        main.data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
+        dialog.close()
 
     def onFinished(self):
         qrl_address = []
@@ -126,8 +123,9 @@ class MyWizard(QtWidgets.QWizard):
             mnemonic.append(self.SecondPageOptionA.mnemonic.text().rstrip())
             hexseed.append(self.SecondPageOptionA.hexseed.text())
         elif QWizard.hasVisitedPage(self, 3):
-            print(main.openFile)
-            qrl_address.append(self.openFile[0])
+            qrl_address.append(main.data[0].split(" ")[0])
+            mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
+            hexseed.append(main.data[0].split(" ")[35])
         elif QWizard.hasVisitedPage(self, 4):
             if self.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
                 qrl_address.append(Model.recoverAddressMnemonic(self.thirdPageOptionC.seedline_edit.text()))
@@ -311,7 +309,9 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
             mnemonic.append(main.SecondPageOptionA.mnemonic.text().rstrip())
             hexseed.append(main.SecondPageOptionA.hexseed.text())
         elif QWizard.hasVisitedPage(main, 3):
-            print(main.openFile())
+            qrl_address.append(main.data[0].split(" ")[0])
+            mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
+            hexseed.append(main.data[0].split(" ")[35])
         elif QWizard.hasVisitedPage(main, 4):
             if main.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
                 qrl_address.append(Model.recoverAddressMnemonic(main.thirdPageOptionC.seedline_edit.text()))
