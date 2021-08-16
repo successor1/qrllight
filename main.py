@@ -321,12 +321,14 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
                 hexseed.append(main.thirdPageOptionC.seedline_edit.text())
         addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
         amounts = [(int(self.amount_input.text()) * 1000000000)]
+        message_data = self.description_input.text().encode() if self.description_input.text() else None
         fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
         xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
         src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
         models.TransferTransaction.tx_transfer(
             addrs_to,
              amounts,
+             message_data,
               fee,
               xmss_pk,
               src_xmss)
