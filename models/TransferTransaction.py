@@ -51,10 +51,9 @@ def validate_ots_index(ots_key_index, src_xmss, prompt=True):
             quit(1)
 
     return ots_key_index
-    
-message_data = None
+
 CONNECTION_TIMEOUT = 5
-def tx_transfer(addrs_to, amounts, fee, xmss_pk, src_xmss):
+def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss):
  # Create transaction
     
     tx = TransferTransaction.create(addrs_to = addrs_to,
