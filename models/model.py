@@ -17,16 +17,6 @@ class Model:
         seed = getRandomSeed(48, '')
         xmss = XMSS(XmssFast(seed, xmss_height, xmss_hash))
         return xmss.qaddress, xmss.mnemonic, xmss.hexseed
-    def getMnemonic():
-        xmss_height = 10
-        seed = getRandomSeed(48, '')
-        xmss = XMSS(XmssFast(seed, xmss_height))
-        return xmss.mnemonic
-    def getHexSeed():
-        xmss_height = 10
-        seed = getRandomSeed(48, '')
-        xmss = XMSS(XmssFast(seed, xmss_height))
-        return xmss.hexseed
 
     def recoverAddressHexseed(seed):
         bin_seed = hstr2bin(seed)
