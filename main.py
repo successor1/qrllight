@@ -85,8 +85,6 @@ class MyWizard(QtWidgets.QWizard):
             self.SecondPageOptionA.qaddress.setText(qaddress)
             self.SecondPageOptionA.mnemonic.setText(mnemonic + "\n" + "\n")
             self.SecondPageOptionA.hexseed.setText(hexseed)
-            # balance = Model.getAddressBalance(qaddress)
-            # mainWindow.balance_label.setText(str(balance))
         self.last_page_id = page_id
     
     def saveFile(self):
@@ -140,6 +138,7 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.pixmap = QPixmap('qr_code.png')
         mainWindow.qr_image_label.setPixmap(mainWindow.pixmap)
         mainWindow.qr_image_label.setScaledContents(True)
+        mainWindow.ots_key_index_input.setText(str(int(Model.getAddressOtsKeyIndex(qrl_address[0]))))
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
 
 
@@ -319,24 +318,26 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
             elif main.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
                 qrl_address.append(Model.recoverAddressHexseed(main.thirdPageOptionC.seedline_edit.text()))
                 hexseed.append(main.thirdPageOptionC.seedline_edit.text())
-        addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
+        addrs_to = [(bytes(hstr2bin(self.send_input.text()[1:]))).rstrip()]
         amounts = [(int(self.amount_input.text()) * 1000000000)]
         message_data = self.description_input.text().encode() if self.description_input.text() else None
         fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
         xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
         src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+        ots_key = int(self.ots_key_index_input.text())
         models.TransferTransaction.tx_transfer(
             addrs_to,
              amounts,
              message_data,
               fee,
               xmss_pk,
-              src_xmss)
+              src_xmss,
+              ots_key)
         QMessageBox.about(self, "Succesful transaction", "Sent!")
-        balance_numbers_only = re.sub("[^0-9]", "", self.balance_label.text())
-        update_label = float(float(int(balance_numbers_only) / 1000000000) - float(float(amounts[0])  / 1000000000.0) + (float(fee) / 1000000000.0))
-        self.balance_label.setText("Balance: " + str(update_label) + " QUANTA")
-        self.balance_label.adjustSize()
+        # balance_numbers_only = re.sub("[^0-9]", "", self.balance_label.text())
+        # update_label = float(float(int(balance_numbers_only) / 1000000000) - float(float(amounts[0])  / 1000000000.0) + (float(fee) / 1000000000.0))
+        # self.balance_label.setText("Balance: " + str(update_label) + " QUANTA")
+        # self.balance_label.adjustSize()
 
     def update(self):
         self.balance_label.adjustSize()
@@ -351,7 +352,8 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     main = MyWizard()
-    mainWindow = QrlWallet()  
+    mainWindow = QrlWallet()
+    app.setWindowIcon(QtGui.QIcon('logocircle.ico'))
     main.hide()
     main.setWindowModality(QtCore.Qt.ApplicationModal)
     mainWindow.show()

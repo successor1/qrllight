@@ -41,19 +41,8 @@ def tx_unbase64(tx_json_str):
 def base64tohex(data):
     return hexlify(a2b_base64(data))
 
-def validate_ots_index(ots_key_index, src_xmss, prompt=True):
-    while not (0 <= ots_key_index < src_xmss.number_signatures):
-        if prompt:
-            ots_key_index = print('OTS key Index [{}..{}]'.format(0, src_xmss.number_signatures - 1), type=int)
-            prompt = False
-        else:
-            print("OTS key index must be between {} and {} (inclusive)".format(0, src_xmss.number_signatures - 1))
-            quit(1)
-
-    return ots_key_index
-
 CONNECTION_TIMEOUT = 5
-def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss):
+def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key):
  # Create transaction
     
     tx = TransferTransaction.create(addrs_to = addrs_to,
@@ -65,8 +54,7 @@ def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss):
 
         # Sign transaction
     src_xmss = src_xmss
-    ots_key_index = validate_ots_index(int(Model.getAddressOtsKeyIndex(src_xmss.qaddress)) + 1, src_xmss)
-    src_xmss.set_ots_index(ots_key_index)
+    src_xmss.set_ots_index(ots_key)
     tx.sign(src_xmss)
 
         # Print result
