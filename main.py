@@ -1,3 +1,4 @@
+from output import Ui_Form2
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
@@ -8,7 +9,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from views.view_ui import Ui_mainWindow
-from views.about_window import Ui_Form
+from views.about_ui import Ui_Form
+from views.donate_ui import Ui_Form2
 import sys
 from models.model import Model
 import models.TransferTransaction
@@ -286,7 +288,7 @@ class LastPage(QtWidgets.QWizardPage):
         super().__init__(parent)
         self.setTitle("Success!")
 
-class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard):
+class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidgets.QWizard):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -295,9 +297,11 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
+        self.actionCheck_for_updates.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/successor1/qrllight/releases")))
         self.actionOfficial_website.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://theqrl.org")))
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://docs.theqrl.org/")))
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://raw.githubusercontent.com/theQRL/Whitepaper/master/QRL_whitepaper.pdf")))
+        self.actionDonate_to_development.triggered.connect(self.donate_popup)
 
     def button_clicked(self):
         qrl_address = []
@@ -318,7 +322,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
             elif main.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
                 qrl_address.append(Model.recoverAddressHexseed(main.thirdPageOptionC.seedline_edit.text()))
                 hexseed.append(main.thirdPageOptionC.seedline_edit.text())
-        addrs_to = [(bytes(hstr2bin(self.send_input.text()[1:]))).rstrip()]
+        addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
         amounts = [(int(self.amount_input.text()) * 1000000000)]
         message_data = self.description_input.text().encode() if self.description_input.text() else None
         fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
@@ -346,7 +350,13 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, QtWidgets.QWizard
         self.dialog=QtWidgets.QMainWindow()
         self.ui = Ui_Form()
         self.ui.setupUi(self.dialog)
-        self.dialog.show() 
+        self.dialog.show()
+
+    def donate_popup(self):
+        self.dialog=QtWidgets.QMainWindow()
+        self.ui = Ui_Form2()
+        self.ui.setupUi(self.dialog)
+        self.dialog.show()
 
 
 if __name__ == "__main__":
