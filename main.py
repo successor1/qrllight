@@ -130,8 +130,10 @@ class MyWizard(QtWidgets.QWizard):
             if self.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
                 qrl_address.append(Model.recoverAddressMnemonic(self.thirdPageOptionC.seedline_edit.text()))
                 mnemonic.append(self.thirdPageOptionC.seedline_edit.text())
+                hexseed.append(Model.recoverHexseedMnemonic(self.thirdPageOptionC.seedline_edit.text()))
             elif self.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
                 qrl_address.append(Model.recoverAddressHexseed(self.thirdPageOptionC.seedline_edit.text()))
+                mnemonic.append(Model.recoverMnemonicHexseed(self.thirdPageOptionC.seedline_edit.text()))
                 hexseed.append(self.thirdPageOptionC.seedline_edit.text())
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -142,13 +144,14 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.qr_image_label.setScaledContents(True)
         mainWindow.ots_key_index_input.setText(str(int(Model.getAddressOtsKeyIndex(qrl_address[0]))))
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
-
+        recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
+        recoveryWindow.hexseed_label_text.setText(hexseed[0])
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        self.setTitle("Welcome to QRL Light Wallet!")
+        self.setTitle("Welcome to Qrllight Wallet v1.1!")
 
         self.label_description = QLabel("Select option:")
         self.radiobutton_1 = QRadioButton("Create new wallet")
@@ -297,6 +300,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
+        self.view_recovery_seed_btn.clicked.connect(self.recovery_seed_pop_up)
         self.actionCheck_for_updates.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/successor1/qrllight/releases")))
         self.actionOfficial_website.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://theqrl.org")))
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://docs.theqrl.org/")))
@@ -351,6 +355,10 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.ui = Ui_Form()
         self.ui.setupUi(self.dialog)
         self.dialog.show()
+    
+    def recovery_seed_pop_up(self):
+        self.t = recoveryWindow
+        self.t.show()
 
     def donate_popup(self):
         self.dialog=QtWidgets.QMainWindow()
@@ -358,11 +366,47 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.ui.setupUi(self.dialog)
         self.dialog.show()
 
+class RecoverySeedView(QWidget):
+    def __init__(self):
+        super(RecoverySeedView, self).__init__()
+        self.setWindowTitle("Wallet details")
+        self.warning_label = QLabel('Warning: If someone unauthorized gains access to these, your funds will be lost!', self )
+        myFont=QtGui.QFont()
+        self.warning_label.setAlignment(Qt.AlignCenter)
+        self.warning_label.setStyleSheet('color: red')
+        myFont.setBold(True)
+        self.warning_label.setFont(myFont)
+        self.mnemonic_label = QLabel('Mnemonic phrase', self )
+        self.mnemonic_label.setAlignment(Qt.AlignCenter)
+        self.mnemonic_label_text = QLabel()
+        self.mnemonic_label_text.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.hexseed_label = QLabel('Hexseed', self )
+        self.hexseed_label.setAlignment(Qt.AlignCenter)
+        self.hexseed_label_text = QLabel()
+        self.hexseed_label_text.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.mnemonic_label_text.setFrameStyle(QFrame.Panel | QFrame.Raised)
+        self.mnemonic_label_text.setFrameShadow(QFrame.Plain)
+        self.mnemonic_label_text.setLineWidth(1)
+        self.mnemonic_label_text.setWordWrap(True)
+
+        self.hexseed_label_text.setFrameStyle(QFrame.Panel | QFrame.Raised)
+        self.hexseed_label_text.setFrameShadow(QFrame.Plain)
+        self.hexseed_label_text.setLineWidth(1)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.warning_label)
+        layout.addWidget(self.mnemonic_label)
+        layout.addWidget(self.mnemonic_label_text)
+        layout.addWidget(self.hexseed_label)
+        layout.addWidget(self.hexseed_label_text)
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     main = MyWizard()
     mainWindow = QrlWallet()
+    recoveryWindow = RecoverySeedView()
     app.setWindowIcon(QtGui.QIcon('logocircle.ico'))
     main.hide()
     main.setWindowModality(QtCore.Qt.ApplicationModal)

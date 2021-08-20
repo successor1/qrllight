@@ -28,6 +28,16 @@ class Model:
         recovered_xmss = XMSS.from_extended_seed(bin_seed)
         return recovered_xmss.qaddress
 
+    def recoverMnemonicHexseed(seed):
+        bin_seed = hstr2bin(seed)
+        recovered_xmss = XMSS.from_extended_seed(bin_seed)
+        return recovered_xmss.mnemonic
+
+    def recoverHexseedMnemonic(seed):
+        bin_seed = mnemonic2bin(seed)
+        recovered_xmss = XMSS.from_extended_seed(bin_seed)
+        return recovered_xmss.hexseed
+    
     def getAddressBalance(address):
         request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
         response = request.text
