@@ -51,3 +51,21 @@ class Model:
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["used_ots_key_count"]
+
+    
+    def getTransactionByHash(tx_hash):
+        request = requests.get('https://testnet-explorer.theqrl.org/api/tx/'+tx_hash)
+        response = request.text
+        getTXResp = json.loads(response)
+        jsonResponse = getTXResp
+        return(jsonResponse)
+
+
+# getting timestamp from transaction hash
+# print(Model.getTransactionByHash("992ac5dfdedf7259fed52ce406e961556796fc238ab79cb43331655b670b627a")["transaction"]["header"]["timestamp_seconds"])
+
+# #getting amount from transaction hash
+# print(Model.getTransactionByHash("992ac5dfdedf7259fed52ce406e961556796fc238ab79cb43331655b670b627a")["transaction"]["tx"]["amount"])
+
+# #check if it comes from own address or not (+ or -)
+# print(Model.getTransactionByHash("1f2a9b8784cc45c41efed0519bc85d3c7040c0f59faf9767f1415f252c8ea81d")["transaction"]["explorer"]["from_hex"])

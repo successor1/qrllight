@@ -1,4 +1,5 @@
-from output import Ui_Form2
+from time import time
+from models.GetMiniTransactionsByAddress import TableOutput
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
@@ -67,7 +68,6 @@ class MyWizard(QtWidgets.QWizard):
         self.addPage(self.secondPageOptionB)
         self.addPage(self.thirdPageOptionC)
         self.addPage(self.lastPage)
-
 
         self.currentIdChanged.connect(self.next_callback)
         self.SecondPageOptionA.save_wallet_file.clicked.connect(self.saveFile)
@@ -146,6 +146,20 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
+        rowPosition = mainWindow.transaction_table.rowCount()
+        transaction_hashes = []
+        transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
+        timestamp_seconds = []
+        amount = []
+        amount_send_receive = []
+        for x in transaction_hashes[0]:
+            timestamp_seconds.append(Model.getTransactionByHash(x)["transaction"]["header"]["timestamp_seconds"])
+            amount.append(Model.getTransactionByHash(x)["transaction"]["tx"]["amount"])
+            amount_send_receive.append(Model.getTransactionByHash("1f2a9b8784cc45c41efed0519bc85d3c7040c0f59faf9767f1415f252c8ea81d")["transaction"]["explorer"]["from_hex"])
+        print(amount)
+        print(amount_send_receive)
+        # mainWindow.transaction_table.insertRow(rowPosition)
+        # mainWindow.transaction_table.setItem(rowPosition , 0, QTableWidgetItem("text1"))
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -291,12 +305,17 @@ class LastPage(QtWidgets.QWizardPage):
         super().__init__(parent)
         self.setTitle("Success!")
 
-class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidgets.QWizard):
+class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidgets.QWizard, QTableWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
         self.model = Model()
+
+        header = self.transaction_table.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
