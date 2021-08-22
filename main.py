@@ -1,5 +1,4 @@
 from time import time
-from models.GetMiniTransactionsByAddress import TableOutput
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
@@ -16,40 +15,14 @@ import sys
 from models.model import Model
 import models.TransferTransaction
 from models.aes import AESModel
-from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
-from qrl.core.misc import logger
+from pyqrllib.pyqrllib import hstr2bin, SHAKE_128, SHAKE_256, SHA2_256
 from qrl.crypto.xmss import XMSS
-from qrl.crypto.xmss import XMSS, hash_functions
-from qrl.core.Wallet import Wallet, WalletDecryptionError
+from qrl.crypto.xmss import XMSS
 import qrcode
 from PIL import Image
-import re
-
-import os
-from binascii import hexlify, a2b_base64
-from collections import namedtuple
-from decimal import Decimal
-from typing import List
-
-import grpc
 import simplejson as json
-from google.protobuf.json_format import MessageToJson
-from pyqrllib.pyqrllib import mnemonic2bin, hstr2bin, bin2hstr
-
-from qrl.core import config
-from qrl.core.Wallet import Wallet, WalletDecryptionError
-from qrl.core.misc.helper import parse_hexblob, parse_qaddress
-from qrl.core.MultiSigAddressState import MultiSigAddressState
-from qrl.core.txs.MessageTransaction import MessageTransaction
-from qrl.core.txs.SlaveTransaction import SlaveTransaction
-from qrl.core.txs.TokenTransaction import TokenTransaction
-from qrl.core.txs.Transaction import Transaction
-from qrl.core.txs.TransferTokenTransaction import TransferTokenTransaction
-from qrl.core.txs.TransferTransaction import TransferTransaction
-from qrl.core.txs.multisig.MultiSigCreate import MultiSigCreate
-from qrl.core.txs.multisig.MultiSigSpend import MultiSigSpend
+from pyqrllib.pyqrllib import hstr2bin
 from qrl.crypto.xmss import XMSS, hash_functions
-from qrl.generated import qrl_pb2_grpc, qrl_pb2
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
@@ -146,20 +119,25 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
-        rowPosition = mainWindow.transaction_table.rowCount()
-        transaction_hashes = []
-        transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
-        timestamp_seconds = []
-        amount = []
-        amount_send_receive = []
-        for x in transaction_hashes[0]:
-            timestamp_seconds.append(Model.getTransactionByHash(x)["transaction"]["header"]["timestamp_seconds"])
-            amount.append(Model.getTransactionByHash(x)["transaction"]["tx"]["amount"])
-            amount_send_receive.append(Model.getTransactionByHash("1f2a9b8784cc45c41efed0519bc85d3c7040c0f59faf9767f1415f252c8ea81d")["transaction"]["explorer"]["from_hex"])
-        print(amount)
-        print(amount_send_receive)
-        # mainWindow.transaction_table.insertRow(rowPosition)
-        # mainWindow.transaction_table.setItem(rowPosition , 0, QTableWidgetItem("text1"))
+        # rowPosition = mainWindow.transaction_table.rowCount()
+        # transaction_hashes = []
+        # transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
+        # timestamp_seconds = []
+        # amount = []
+        # amount_send_receive = []
+        # for x in transaction_hashes[0]:
+        #     timestamp_seconds.append(int(Model.getTransactionByHash(x)["transaction"]["header"]["timestamp_seconds"]))
+        #     amount.append(Model.getTransactionByHash(x))
+        #     amount_send_receive.append(Model.getTransactionByHash(x))
+        # dates = [str(datetime.fromtimestamp(y)) for y in timestamp_seconds]
+
+        # for y, z in zip(dates, amount["transaction"]["tx"]["amount"]):
+        #     mainWindow.transaction_table.insertRow(rowPosition)
+        #     mainWindow.transaction_table.setItem(rowPosition , 0, QTableWidgetItem(y))
+        #     mainWindow.transaction_table.setItem(rowPosition , 2, QTableWidgetItem(z))
+
+        # print(amount[0]["transaction"]["tx"]["amount"])
+        # print(amount_send_receive[0]["transaction"]["explorer"]["from_hex"])
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -312,10 +290,10 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.setupUi(self)
         self.model = Model()
 
-        header = self.transaction_table.horizontalHeader()
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        # header = self.transaction_table.horizontalHeader()
+        # header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        # header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        # header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
