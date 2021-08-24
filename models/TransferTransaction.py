@@ -23,8 +23,13 @@ from qrl.core.txs.multisig.MultiSigCreate import MultiSigCreate
 from qrl.core.txs.multisig.MultiSigSpend import MultiSigSpend
 from qrl.crypto.xmss import XMSS, hash_functions
 from qrl.generated import qrl_pb2_grpc, qrl_pb2
+import requests
 
-from models.model import Model
+def get_tor_session():
+    session = requests.session()
+    session.proxies = {'http':  'socks5h://127.0.0.1:9050',
+                       'https': 'socks5h://127.0.0.1:9050'}
+    return session
 
 
 def _quanta_to_shor(x: Decimal, base=Decimal(config.dev.shor_per_quanta)) -> int:
@@ -72,7 +77,8 @@ def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key
 
     # Push transaction
     print("Sending to a QRL Node...")
-    node_public_address = 'testnet-1.automated.theqrl.org:19009'
+    session = get_tor_session()
+    node_public_address = session.get("testnet-1.automated.theqrl.org:19009")
     channel = grpc.insecure_channel(node_public_address)
     stub = qrl_pb2_grpc.PublicAPIStub(channel)
     push_transaction_req = qrl_pb2.PushTransactionReq(transaction_signed=tx.pbdata)
