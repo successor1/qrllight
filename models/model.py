@@ -8,12 +8,6 @@ from qrl.crypto.xmss import XMSS
 class Model:
     def __init__(self):
         pass
-
-    def get_tor_session():
-        session = requests.session()
-        session.proxies = {'http':  'socks5h://127.0.0.1:9050',
-                       'https': 'socks5h://127.0.0.1:9050'}
-        return session
         
     def getAddress(xmss_height, xmss_hash):
         seed = getRandomSeed(48, '')
@@ -41,16 +35,14 @@ class Model:
         return recovered_xmss.hexseed
     
     def getAddressBalance(address):
-        session = Model.get_tor_session()
-        request = session.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["balance"]
 
     def getAddressOtsKeyIndex(address):
-        session = Model.get_tor_session()
-        request = session.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
@@ -58,8 +50,7 @@ class Model:
 
     
     def getTransactionByHash(tx_hash):
-        session = Model.get_tor_session()
-        request = session.get('https://testnet-explorer.theqrl.org/api/tx/'+tx_hash)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/tx/'+tx_hash)
         response = request.text
         getTXResp = json.loads(response)
         jsonResponse = getTXResp
