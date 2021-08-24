@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>QRL Wallet v1.0</string>
+   <string>QRL Wallet v1.2</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -22,50 +22,12 @@
     <item>
      <widget class="QTabWidget" name="inner_window">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="history_tab">
-       <attribute name="icon">
-        <iconset>
-         <normaloff>views/images/tab_history.png</normaloff>views/images/tab_history.png</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>History</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QTableWidget" name="transaction_table">
-          <property name="lineWidth">
-           <number>1</number>
-          </property>
-          <column>
-           <property name="text">
-            <string>Date</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Description</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Amount</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Balance</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="send_tab">
        <attribute name="icon">
         <iconset>
-         <normaloff>views/images/tab_send.png</normaloff>views/images/tab_send.png</iconset>
+         <normaloff>tab_send.png</normaloff>tab_send.png</iconset>
        </attribute>
        <attribute name="title">
         <string>Send</string>
@@ -73,8 +35,8 @@
        <widget class="QPushButton" name="clear_button">
         <property name="geometry">
          <rect>
-          <x>500</x>
-          <y>210</y>
+          <x>610</x>
+          <y>270</y>
           <width>93</width>
           <height>28</height>
          </rect>
@@ -83,24 +45,11 @@
          <string>Clear</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="save_button">
-        <property name="geometry">
-         <rect>
-          <x>610</x>
-          <y>210</y>
-          <width>93</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Save</string>
-        </property>
-       </widget>
        <widget class="QPushButton" name="send_button">
         <property name="geometry">
          <rect>
           <x>710</x>
-          <y>210</y>
+          <y>270</y>
           <width>93</width>
           <height>28</height>
          </rect>
@@ -140,7 +89,7 @@
          <rect>
           <x>20</x>
           <y>80</y>
-          <width>81</width>
+          <width>91</width>
           <height>16</height>
          </rect>
         </property>
@@ -209,11 +158,85 @@
          <string>Fee (e.g. 0.1)</string>
         </property>
        </widget>
+       <widget class="QLineEdit" name="ots_key_index_input">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>110</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="cursorPosition">
+         <number>0</number>
+        </property>
+        <property name="placeholderText">
+         <string>OTS Key Index</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ots_key_index_count_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>110</y>
+          <width>101</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>OTS Key Index</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ots_key_index_label">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>110</y>
+          <width>111</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ots_warning_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>140</y>
+          <width>591</width>
+          <height>161</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;OTS Key Index Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;The OTS Key Index in the field above is estimated based on data provided by the QRL node you're connected to. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;You should never re-use the same OTS Key for more than 1 transaction.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;If you are unsure, it is safest to write down all used OTS Key Indexes, and store them in a safe place. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;With your last key you must empty your wallet. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;If you use all of your OTS Key Indexes with funds in the wallet, these funds will be &lt;/span&gt;&lt;span style=&quot; font-size:9pt; font-weight:600; font-style:italic;&quot;&gt;lost FOREVER!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="Line" name="line">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>781</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="receive_tab">
        <attribute name="icon">
         <iconset>
-         <normaloff>views/images/tab_receive.png</normaloff>views/images/tab_receive.png</iconset>
+         <normaloff>tab_receive.png</normaloff>tab_receive.png</iconset>
        </attribute>
        <attribute name="title">
         <string>Receive</string>
@@ -291,58 +314,6 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionRecently_opened"/>
-    <addaction name="actionOpen"/>
-    <addaction name="actionNew"/>
-    <addaction name="actionSave_backup"/>
-    <addaction name="actionDelete"/>
-    <addaction name="separator"/>
-    <addaction name="actionQuit"/>
-   </widget>
-   <widget class="QMenu" name="menuWallet">
-    <property name="title">
-     <string>Wallet</string>
-    </property>
-    <addaction name="actionInformation"/>
-    <addaction name="separator"/>
-    <addaction name="actionPassword"/>
-    <addaction name="actionSeed"/>
-    <addaction name="actionPrivate_keys"/>
-    <addaction name="separator"/>
-    <addaction name="actionAddresses"/>
-    <addaction name="actionLabels"/>
-    <addaction name="actionHistory"/>
-    <addaction name="actionContacts"/>
-    <addaction name="separator"/>
-    <addaction name="actionFind"/>
-   </widget>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>View</string>
-    </property>
-    <addaction name="actionShow_addresses"/>
-    <addaction name="actionShow_coins"/>
-    <addaction name="actionHide_channels"/>
-    <addaction name="actionShow_contacts"/>
-   </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionPreferences"/>
-    <addaction name="actionNetwork"/>
-    <addaction name="actionPlugins"/>
-    <addaction name="separator"/>
-    <addaction name="actionSign_verify_message"/>
-    <addaction name="actionEncrypt_decrypt_message"/>
-    <addaction name="separator"/>
-    <addaction name="actionPay_to_many"/>
-    <addaction name="actionLoad_transaction"/>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -357,10 +328,6 @@
     <addaction name="separator"/>
     <addaction name="actionDonate_to_development"/>
    </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuWallet"/>
-   <addaction name="menuView"/>
-   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionAbout">
@@ -534,12 +501,60 @@
   <connection>
    <sender>clear_button</sender>
    <signal>clicked()</signal>
+   <receiver>amount_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>fee_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>694</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ots_key_index_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>674</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>235</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
    <receiver>send_input</receiver>
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>293</y>
+     <x>697</x>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
      <x>440</x>
@@ -550,28 +565,12 @@
   <connection>
    <sender>clear_button</sender>
    <signal>clicked()</signal>
-   <receiver>amount_input</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>554</x>
-     <y>287</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>200</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>clear_button</sender>
-   <signal>clicked()</signal>
    <receiver>description_input</receiver>
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>551</x>
-     <y>292</y>
+     <x>672</x>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
      <x>315</x>

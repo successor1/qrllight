@@ -1,12 +1,8 @@
-import os
-import numpy as np
 import requests
 import json
-from pyqrllib.pyqrllib import str2bin, XmssFast, mnemonic2bin, hstr2bin, bin2hstr, SHAKE_128, SHAKE_256, SHA2_256, getRandomSeed
-from qrl.core.misc import logger
+from pyqrllib.pyqrllib import XmssFast, mnemonic2bin, hstr2bin, getRandomSeed
 from qrl.crypto.xmss import XMSS
-from qrl.crypto.xmss import XMSS, hash_functions
-from qrl.core.Wallet import Wallet, WalletDecryptionError
+from qrl.crypto.xmss import XMSS
 
 
 class Model:
@@ -65,7 +61,7 @@ class Model:
 # print(Model.getTransactionByHash("992ac5dfdedf7259fed52ce406e961556796fc238ab79cb43331655b670b627a")["transaction"]["header"]["timestamp_seconds"])
 
 # #getting amount from transaction hash
-# print(Model.getTransactionByHash("992ac5dfdedf7259fed52ce406e961556796fc238ab79cb43331655b670b627a")["transaction"]["tx"]["amount"])
+# print(Model.getTransactionByHash("357db33e4fc2944fe6bb3bc630a710df7e107e8394fa154196a6ce7db705e786")["transaction"]["tx"]["amount"])
 
 # #check if it comes from own address or not (+ or -)
 # print(Model.getTransactionByHash("1f2a9b8784cc45c41efed0519bc85d3c7040c0f59faf9767f1415f252c8ea81d")["transaction"]["explorer"]["from_hex"])
