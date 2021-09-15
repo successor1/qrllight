@@ -124,7 +124,7 @@ class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        self.setTitle("Welcome to Qrllight Wallet v1.2!")
+        self.setTitle("Welcome to Qrllight Wallet v1.3!")
 
         self.label_description = QLabel("Select option:")
         self.radiobutton_1 = QRadioButton("Create new wallet")
@@ -297,11 +297,13 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             if main.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
                 qrl_address.append(Model.recoverAddressMnemonic(main.thirdPageOptionC.seedline_edit.text()))
                 mnemonic.append(main.thirdPageOptionC.seedline_edit.text())
+                hexseed.append(Model.recoverHexseedMnemonic(main.thirdPageOptionC.seedline_edit.text()))
             elif main.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
                 qrl_address.append(Model.recoverAddressHexseed(main.thirdPageOptionC.seedline_edit.text()))
+                mnemonic.append(Model.recoverMnemonicHexseed(main.thirdPageOptionC.seedline_edit.text()))
                 hexseed.append(main.thirdPageOptionC.seedline_edit.text())
         addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
-        amounts = [(int(self.amount_input.text()) * 1000000000)]
+        amounts = [int(float(self.amount_input.text()) * 1000000000)]
         message_data = self.description_input.text().encode() if self.description_input.text() else None
         fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
         xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk

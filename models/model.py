@@ -35,14 +35,14 @@ class Model:
         return recovered_xmss.hexseed
     
     def getAddressBalance(address):
-        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["balance"]
 
     def getAddressOtsKeyIndex(address):
-        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
@@ -50,7 +50,7 @@ class Model:
 
     
     def getTransactionByHash(tx_hash):
-        request = requests.get('https://testnet-explorer.theqrl.org/api/tx/'+tx_hash)
+        request = requests.get('https://explorer.theqrl.org/api/tx/'+tx_hash)
         response = request.text
         getTXResp = json.loads(response)
         jsonResponse = getTXResp

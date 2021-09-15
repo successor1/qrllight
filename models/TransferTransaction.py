@@ -69,7 +69,7 @@ def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key
 
     # Push transaction
     print("Sending to a QRL Node...")
-    node_public_address = 'testnet-1.automated.theqrl.org:19009'
+    node_public_address = 'mainnet-1.automated.theqrl.org:19009'
     channel = grpc.insecure_channel(node_public_address)
     stub = qrl_pb2_grpc.PublicAPIStub(channel)
     push_transaction_req = qrl_pb2.PushTransactionReq(transaction_signed=tx.pbdata)
