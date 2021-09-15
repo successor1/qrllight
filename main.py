@@ -74,6 +74,7 @@ class MyWizard(QtWidgets.QWizard):
         dialog.write(json.dumps(AESModel.encrypt(self.SecondPageOptionA.qaddress.toPlainText() + " " + self.SecondPageOptionA.mnemonic.text().rstrip() + " " + self.SecondPageOptionA.hexseed.text(), self.firstPageOptionA.passwordline_edit.text())))
         dialog.close()
 
+
     data = []
     def openFile(self) -> int:
         file_filter = 'Json file (*.json)'
@@ -83,9 +84,13 @@ class MyWizard(QtWidgets.QWizard):
                 directory= '.json',
                 filter=file_filter,
                 initialFilter='Json file (*.json)')
-        dialog = open(dialog_save_file_name[0], "r")
-        main.data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
-        dialog.close()
+        try:
+            dialog = open(dialog_save_file_name[0], "r")
+            main.data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
+            dialog.close()
+            QMessageBox.about(self, "Success!", "Correct password!")
+        except ValueError:
+            QMessageBox.warning(self, "Wrong password!", "You have entered the wrong password!")
 
     def onFinished(self):
         qrl_address = []
@@ -311,7 +316,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
         fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
 
-        if qrl_address_validator[0] != 2 :
+        if qrl_address_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty QRL address!")
         elif amount_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount")
