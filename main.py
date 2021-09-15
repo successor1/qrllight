@@ -47,8 +47,6 @@ class MyWizard(QtWidgets.QWizard):
         self.secondPageOptionB.openFileBtn.clicked.connect(self.openFile)
         self.finished.connect(self.onFinished)
 
-
-
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
             combo_height_short = self.firstPageOptionA.combo_height
@@ -124,12 +122,23 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
+    
+    # def checkInput(self):
+    #     if self.validateCurrentPage():
+    #         mnemonic_validator = self.mnemonicvalidator.validate(self.thirdPageOptionC.seedline_edit.text(), 0)
+    #         hexseed_validator = self.hexseedvalidator.validate(self.thirdPageOptionC.seedline_edit.text(), 0)
+    #         if mnemonic_validator[0] != 2:
+    #             QMessageBox.warning(self, "Error: Incorrect Input!", "Wrong mnemonic phrase!")
+    #             return False
+    #         elif hexseed_validator[0] != 2:
+    #             QMessageBox.warning(self, "Error: Incorrect Input!", "Wrong hexseed!")
+    #             return False
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        self.setTitle("Welcome to Qrllight Wallet v1.3!")
+        self.setTitle("Welcome to Qrllight Wallet v1.4!")
 
         self.label_description = QLabel("Select option:")
         self.radiobutton_1 = QRadioButton("Create new wallet")
@@ -250,6 +259,14 @@ class SecondPageOptionB(QtWidgets.QWizardPage):
     def nextId(self) -> int:
         return 5
 
+class RegExpValidator(QtGui.QRegularExpressionValidator):
+    validationChanged = QtCore.pyqtSignal(QtGui.QValidator.State)
+
+    def validate(self, input, pos):
+        state, input, pos = super().validate(input, pos)
+        self.validationChanged.emit(state)
+        return state, input, pos
+
 class ThirdPageOptionC(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -258,10 +275,25 @@ class ThirdPageOptionC(QtWidgets.QWizardPage):
 
         self.seed_label = QLabel("Enter your seed:")
         self.seedline_edit = QLineEdit()
-
-        layout = QHBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout(self)
         layout.addWidget(self.seed_label)
         layout.addWidget(self.seedline_edit)
+
+        regexp_mnemonic = QtCore.QRegularExpression(r'((\b|\s)+\w+(\b|\s)+){34}|.{102}') #QRL address regex
+        
+        validator = RegExpValidator(regexp_mnemonic, self)
+        validator.validationChanged.connect(self.handleValidationChange)
+        self.seedline_edit.setValidator(validator)
+
+
+    def handleValidationChange(self, state):
+        if state == QtGui.QValidator.Invalid:
+            colour = 'red'
+        elif state == QtGui.QValidator.Intermediate:
+            colour = 'gold'
+        elif state == QtGui.QValidator.Acceptable:
+            colour = 'lime'
+        self.seedline_edit.setStyleSheet('border: 1px solid %s' % colour)
 
 
 class LastPage(QtWidgets.QWizardPage):
@@ -278,8 +310,10 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
 
         regexp_qrl = QRegExp(r'^[a-zA-Z0-9]{79}$')
         regexp_amount_fee = QRegExp(r'^\d+(\.\d+)*$')
+        regexp_ots_key = QRegExp(r'^[0-9]*$')
         self.qrlvalidator = QRegExpValidator(regexp_qrl)
         self.amount_fee_validator = QRegExpValidator(regexp_amount_fee)
+        self.ots_key_validator = QRegExpValidator(regexp_ots_key)
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
@@ -315,13 +349,16 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         qrl_address_validator = self.qrlvalidator.validate(self.send_input.text(), 0)
         amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
         fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
+        ots_key_validator = self.ots_key_validator.validate(self.ots_key_index_input.text(), 0)
 
         if qrl_address_validator[0] != 2:
-            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty QRL address!")
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty QRL address input!")
         elif amount_validator[0] != 2:
-            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount")
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount input")
         elif fee_validator[0] != 2:
-            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee")
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee input")
+        elif ots_key_validator[0] != 2:
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty OTS key input")
         else:
             addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
             amounts = [int(float(self.amount_input.text()) * 1000000000)]
