@@ -271,6 +271,11 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.setupUi(self)
         self.model = Model()
 
+        regexp_qrl = QRegExp(r'^[a-zA-Z0-9]{79}$')
+        regexp_amount_fee = QRegExp(r'^\d+(\.\d+)*$')
+        self.qrlvalidator = QRegExpValidator(regexp_qrl)
+        self.amount_fee_validator = QRegExpValidator(regexp_amount_fee)
+
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
         self.view_recovery_seed_btn.clicked.connect(self.recovery_seed_pop_up)
@@ -302,22 +307,33 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
                 qrl_address.append(Model.recoverAddressHexseed(main.thirdPageOptionC.seedline_edit.text()))
                 mnemonic.append(Model.recoverMnemonicHexseed(main.thirdPageOptionC.seedline_edit.text()))
                 hexseed.append(main.thirdPageOptionC.seedline_edit.text())
-        addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
-        amounts = [int(float(self.amount_input.text()) * 1000000000)]
-        message_data = self.description_input.text().encode() if self.description_input.text() else None
-        fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
-        xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
-        src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
-        ots_key = int(self.ots_key_index_input.text())
-        models.TransferTransaction.tx_transfer(
-            addrs_to,
-             amounts,
-             message_data,
-              fee,
-              xmss_pk,
-              src_xmss,
-              ots_key)
-        QMessageBox.about(self, "Succesful transaction", "Sent!")
+        qrl_address_validator = self.qrlvalidator.validate(self.send_input.text(), 0)
+        amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
+        fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
+
+        if qrl_address_validator[0] != 2 :
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty QRL address!")
+        elif amount_validator[0] != 2:
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount")
+        elif fee_validator[0] != 2:
+            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee")
+        else:
+            addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
+            amounts = [int(float(self.amount_input.text()) * 1000000000)]
+            message_data = self.description_input.text().encode() if self.description_input.text() else None
+            fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
+            xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
+            src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+            ots_key = int(self.ots_key_index_input.text())
+            models.TransferTransaction.tx_transfer(
+                addrs_to,
+                amounts,
+                message_data,
+                fee,
+                xmss_pk,
+                src_xmss,
+                ots_key)
+            QMessageBox.about(self, "Succesful transaction", "Sent!")
 
     def update(self):
         self.balance_label.adjustSize()
