@@ -122,17 +122,6 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
-    
-    # def checkInput(self):
-    #     if self.validateCurrentPage():
-    #         mnemonic_validator = self.mnemonicvalidator.validate(self.thirdPageOptionC.seedline_edit.text(), 0)
-    #         hexseed_validator = self.hexseedvalidator.validate(self.thirdPageOptionC.seedline_edit.text(), 0)
-    #         if mnemonic_validator[0] != 2:
-    #             QMessageBox.warning(self, "Error: Incorrect Input!", "Wrong mnemonic phrase!")
-    #             return False
-    #         elif hexseed_validator[0] != 2:
-    #             QMessageBox.warning(self, "Error: Incorrect Input!", "Wrong hexseed!")
-    #             return False
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -267,9 +256,55 @@ class RegExpValidator(QtGui.QRegularExpressionValidator):
         self.validationChanged.emit(state)
         return state, input, pos
 
+class MouseTracker(QtCore.QObject):
+    positionChanged = QtCore.pyqtSignal(QtCore.QPoint)
+
+    def __init__(self, widget):
+        super().__init__(widget)
+        self._widget = widget
+        self.widget.setMouseTracking(True)
+        self.widget.installEventFilter(self)
+
+    @property
+    def widget(self):
+        return self._widget
+
+    def eventFilter(self, o, e):
+        if o is self.widget and e.type() == QtCore.QEvent.MouseMove:
+            self.positionChanged.emit(e.pos())
+        return super().eventFilter(o, e)
+
+
 class ThirdPageOptionC(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+    #     self.video_label = QtWidgets.QLabel()
+    #     self.video_label.setStyleSheet("background-color: green; border: 1px solid black")
+    #     self.video_label.setFixedWidth(550)
+    #     self.video_label.setFixedHeight(420)
+
+    #     tracker = MouseTracker(self.video_label)
+    #     tracker.positionChanged.connect(self.on_positionChanged)
+
+    #     lay = QtWidgets.QVBoxLayout(self)
+    #     lay.addWidget(self.video_label)
+    #     lay.addWidget(QtWidgets.QLabel())
+
+    #     self.resize(640, 480)
+
+    #     self.label_position = QtWidgets.QLabel(
+    #         self.video_label, alignment=QtCore.Qt.AlignCenter
+    #     )
+    #     self.label_position.setStyleSheet('background-color: white; border: 1px solid black')
+
+    # @QtCore.pyqtSlot(QtCore.QPoint)
+    # def on_positionChanged(self, pos):
+    #     delta = QtCore.QPoint(30, -15)
+    #     self.label_position.show()
+    #     self.label_position.move(pos + delta)
+    #     self.label_position.setText("(%d, %d)" % (pos.x(), pos.y()))
+    #     self.label_position.adjustSize()
 
         self.setTitle("Restore your wallet")
 
@@ -367,15 +402,26 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
             src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
             ots_key = int(self.ots_key_index_input.text())
-            models.TransferTransaction.tx_transfer(
-                addrs_to,
-                amounts,
-                message_data,
-                fee,
-                xmss_pk,
-                src_xmss,
-                ots_key)
-            QMessageBox.about(self, "Succesful transaction", "Sent!")
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Are you sure you proceed?")
+            msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + self.fee_input.text() + "\nOTS Key Index: " + self.ots_key_index_input.text())
+            msg.setWindowTitle("QRL Confirmation")
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+            returnValue = msg.exec()
+            if returnValue == QMessageBox.Cancel:
+                pass
+            else:
+                models.TransferTransaction.tx_transfer(
+                    addrs_to,
+                    amounts,
+                    message_data,
+                    fee,
+                    xmss_pk,
+                    src_xmss,
+                    ots_key)
+                QMessageBox.about(self, "Succesful transaction", "Sent!")
 
     def update(self):
         self.balance_label.adjustSize()
