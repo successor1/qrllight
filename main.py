@@ -32,12 +32,16 @@ class MyWizard(QtWidgets.QWizard):
         self.introPage = IntroPage()
         self.createWallet = CreateWallet()
         self.walletDetails = WalletDetails()
+        self.createSeedByMouse = CreateSeedByMouse()
+        self.walletDetailsExperimental = WalletDetailsExperimental()
         self.openWalletFile = OpenWalletFile()
         self.restoreWallet = RestoreWallet()
         self.lastPage = LastPage()
         self.addPage(self.introPage)
         self.addPage(self.createWallet)
         self.addPage(self.walletDetails)
+        self.addPage(self.createSeedByMouse)
+        self.addPage(self.walletDetailsExperimental)
         self.addPage(self.openWalletFile)
         self.addPage(self.restoreWallet)
         self.addPage(self.lastPage)
@@ -58,6 +62,16 @@ class MyWizard(QtWidgets.QWizard):
             self.walletDetails.qaddress.setText(qaddress)
             self.walletDetails.mnemonic.setText(mnemonic + "\n" + "\n")
             self.walletDetails.hexseed.setText(hexseed)
+        # if page_id == 4 and self.last_page_id == 3:
+        #     combo_height_short = self.createWallet.combo_height
+        #     combo_hash_short = self.createWallet.combo_hash
+        #     if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
+        #         combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
+        #         combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
+        #     qaddress, mnemonic, hexseed = Model.getAddressExperimental(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()])
+        #     self.walletDetails.qaddress.setText(qaddress)
+        #     self.walletDetails.mnemonic.setText(mnemonic + "\n" + "\n")
+        #     self.walletDetails.hexseed.setText(hexseed)
         self.last_page_id = page_id
     
     def saveFile(self):
@@ -133,6 +147,7 @@ class IntroPage(QtWidgets.QWizardPage):
         self.radiobutton_1 = QRadioButton("Create new wallet")
         self.radiobutton_2 = QRadioButton("Open wallet file")
         self.radiobutton_3 = QRadioButton("Restore wallet from seed")
+        self.radiobutton_4 = QRadioButton("Create wallet by random mouse movements [Experimental]")
         self.radiobutton_2.setChecked(True)
 
         layout = QVBoxLayout(self)
@@ -140,14 +155,17 @@ class IntroPage(QtWidgets.QWizardPage):
         layout.addWidget(self.radiobutton_1)
         layout.addWidget(self.radiobutton_2)
         layout.addWidget(self.radiobutton_3)
+        layout.addWidget(self.radiobutton_4)
 
     def nextId(self) -> int:
         if self.radiobutton_1.isChecked():
             return 1
         if self.radiobutton_2.isChecked():
-            return 3
+            return 5
         if self.radiobutton_3.isChecked():
-            return 4
+            return 6
+        if self.radiobutton_4.isChecked():
+            return 3
 
         return 0
 
@@ -227,34 +245,61 @@ class WalletDetails(QtWidgets.QWizardPage):
         layout.addWidget(self.save_wallet_file)
 
     def nextId(self) -> int:
-        return 5
+        return 7
 
-class OpenWalletFile(QtWidgets.QWizardPage):
+class CreateSeedByMouse(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setTitle("Open wallet file")
+        self.setTitle("Generate entropy by mouse!")
 
-        self.password_qlabel = QLabel("Password (optional):")
-        self.passwordline_edit = QLineEdit()
+        self.password_label = QLabel("Password (optional):")
+        self.passwordline_edit = QLineEdit(self)
         self.passwordline_edit.setEchoMode(2)
         self.passwordline_edit.setPlaceholderText("Enter password")
-        self.openFileBtn = QPushButton("Import secure wallet file")
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.password_qlabel)
+
+        self.combo_height = QComboBox(self)
+        self.combo_height.addItem("Tree height: 8 | Signatures: 256")
+        self.combo_height.addItem("Tree height: 10 | Signatures: 1,024")
+        self.combo_height.addItem("Tree height: 12 | Signatures: 4,096")
+        self.combo_height.addItem("Tree height: 14 | Signatures: 16,384")
+        self.combo_height.addItem("Tree height: 16 | Signatures: 65,536")
+        self.combo_height.addItem("Tree height: 18 | Signatures: 262,144")
+
+        self.combo_hash = QComboBox(self)
+        self.combo_hash.addItem("Hash function: SHAKE_128")
+        self.combo_hash.addItem("Hash function: SHAKE_256")
+        self.combo_hash.addItem("Hash function: SHA2_256") 
+
+        self.video_label = QtWidgets.QLabel()
+        self.video_label.setStyleSheet("background-color: white; border: 1px solid black")
+        self.video_label.setFixedWidth(510)
+        self.video_label.setFixedHeight(175)
+
+        tracker = MouseTracker(self.video_label)
+        tracker.positionChanged.connect(self.on_positionChanged)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.password_label)
         layout.addWidget(self.passwordline_edit)
-        layout.addWidget(self.openFileBtn)
-        self.setLayout(layout)
+        layout.addWidget(self.combo_height)
+        layout.addWidget(self.combo_hash)
+        layout.addWidget(self.video_label)
+
+        self.label_position = QtWidgets.QLabel(
+            self.video_label, alignment=QtCore.Qt.AlignCenter
+        )
+        self.label_position.setStyleSheet('background-color: white; border: 1px solid black')
+
+    @QtCore.pyqtSlot(QtCore.QPoint)
+    def on_positionChanged(self, pos):
+        delta = QtCore.QPoint(30, -15)
+        self.label_position.show()
+        self.label_position.move(pos + delta)
+        self.label_position.setText("(%d, %d)" % (pos.x(), pos.y()))
+        self.label_position.adjustSize()
 
     def nextId(self) -> int:
-        return 5
-
-class RegExpValidator(QtGui.QRegularExpressionValidator):
-    validationChanged = QtCore.pyqtSignal(QtGui.QValidator.State)
-
-    def validate(self, input, pos):
-        state, input, pos = super().validate(input, pos)
-        self.validationChanged.emit(state)
-        return state, input, pos
+        return 4
 
 class MouseTracker(QtCore.QObject):
     positionChanged = QtCore.pyqtSignal(QtCore.QPoint)
@@ -274,37 +319,82 @@ class MouseTracker(QtCore.QObject):
             self.positionChanged.emit(e.pos())
         return super().eventFilter(o, e)
 
+class WalletDetailsExperimental(QtWidgets.QWizardPage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTitle("Wallet details")
+
+        self.qaddress_description = QLabel("QRL Public address:")
+        self.qaddress = QTextEdit()
+        self.qaddress.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.mnemonic_description = QLabel("Mnemonic phrase:")
+        self.mnemonic = QLabel()
+        self.hexseed_description = QLabel("Hexseed:")
+        self.hexseed = QLabel()
+
+        self.save_wallet_file = QPushButton('Save secure wallet file')
+
+
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+
+        self.frame = QFrame(self)
+        self.qaddress.setFrameStyle(QFrame.Panel | QFrame.Raised)
+        self.qaddress.setFrameShadow(QFrame.Plain)
+        self.qaddress.setLineWidth(1)
+
+        self.mnemonic.setFrameStyle(QFrame.Panel | QFrame.Raised)
+        self.mnemonic.setFrameShadow(QFrame.Plain)
+        self.mnemonic.setLineWidth(1)
+        self.mnemonic.setWordWrap(True)
+
+        self.hexseed.setFrameStyle(QFrame.Panel | QFrame.Raised)
+        self.hexseed.setFrameShadow(QFrame.Plain)
+        self.hexseed.setLineWidth(1)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.qaddress_description)
+        layout.addWidget(self.qaddress)
+        layout.addWidget(self.mnemonic_description)
+        layout.addWidget(self.mnemonic)
+        layout.addWidget(self.hexseed_description)
+        layout.addWidget(self.hexseed)
+        layout.addWidget(self.save_wallet_file)
+
+    def nextId(self) -> int:
+        return 7
+
+
+class OpenWalletFile(QtWidgets.QWizardPage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTitle("Open wallet file")
+
+        self.password_qlabel = QLabel("Password (optional):")
+        self.passwordline_edit = QLineEdit()
+        self.passwordline_edit.setEchoMode(2)
+        self.passwordline_edit.setPlaceholderText("Enter password")
+        self.openFileBtn = QPushButton("Import secure wallet file")
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.password_qlabel)
+        layout.addWidget(self.passwordline_edit)
+        layout.addWidget(self.openFileBtn)
+        self.setLayout(layout)
+
+    def nextId(self) -> int:
+        return 7
+
+class RegExpValidator(QtGui.QRegularExpressionValidator):
+    validationChanged = QtCore.pyqtSignal(QtGui.QValidator.State)
+
+    def validate(self, input, pos):
+        state, input, pos = super().validate(input, pos)
+        self.validationChanged.emit(state)
+        return state, input, pos
 
 class RestoreWallet(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-    #     self.video_label = QtWidgets.QLabel()
-    #     self.video_label.setStyleSheet("background-color: green; border: 1px solid black")
-    #     self.video_label.setFixedWidth(550)
-    #     self.video_label.setFixedHeight(420)
-
-    #     tracker = MouseTracker(self.video_label)
-    #     tracker.positionChanged.connect(self.on_positionChanged)
-
-    #     lay = QtWidgets.QVBoxLayout(self)
-    #     lay.addWidget(self.video_label)
-    #     lay.addWidget(QtWidgets.QLabel())
-
-    #     self.resize(640, 480)
-
-    #     self.label_position = QtWidgets.QLabel(
-    #         self.video_label, alignment=QtCore.Qt.AlignCenter
-    #     )
-    #     self.label_position.setStyleSheet('background-color: white; border: 1px solid black')
-
-    # @QtCore.pyqtSlot(QtCore.QPoint)
-    # def on_positionChanged(self, pos):
-    #     delta = QtCore.QPoint(30, -15)
-    #     self.label_position.show()
-    #     self.label_position.move(pos + delta)
-    #     self.label_position.setText("(%d, %d)" % (pos.x(), pos.y()))
-    #     self.label_position.adjustSize()
 
         self.setTitle("Restore your wallet")
 
