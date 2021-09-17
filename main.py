@@ -30,34 +30,34 @@ class MyWizard(QtWidgets.QWizard):
 
         self.setFixedSize(550, 400)
         self.introPage = IntroPage()
-        self.firstPageOptionA = FirstPageOptionA(self)
-        self.SecondPageOptionA = SecondPageOptionA()
-        self.secondPageOptionB = SecondPageOptionB()
-        self.thirdPageOptionC = ThirdPageOptionC()
+        self.createWallet = CreateWallet()
+        self.walletDetails = WalletDetails()
+        self.openWalletFile = OpenWalletFile()
+        self.restoreWallet = RestoreWallet()
         self.lastPage = LastPage()
         self.addPage(self.introPage)
-        self.addPage(self.firstPageOptionA)
-        self.addPage(self.SecondPageOptionA)
-        self.addPage(self.secondPageOptionB)
-        self.addPage(self.thirdPageOptionC)
+        self.addPage(self.createWallet)
+        self.addPage(self.walletDetails)
+        self.addPage(self.openWalletFile)
+        self.addPage(self.restoreWallet)
         self.addPage(self.lastPage)
 
         self.currentIdChanged.connect(self.next_callback)
-        self.SecondPageOptionA.save_wallet_file.clicked.connect(self.saveFile)
-        self.secondPageOptionB.openFileBtn.clicked.connect(self.openFile)
+        self.walletDetails.save_wallet_file.clicked.connect(self.saveFile)
+        self.openWalletFile.openFileBtn.clicked.connect(self.openFile)
         self.finished.connect(self.onFinished)
 
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
-            combo_height_short = self.firstPageOptionA.combo_height
-            combo_hash_short = self.firstPageOptionA.combo_hash
+            combo_height_short = self.createWallet.combo_height
+            combo_hash_short = self.createWallet.combo_hash
             if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
                 combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
                 combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
             qaddress, mnemonic, hexseed = Model.getAddress(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()])
-            self.SecondPageOptionA.qaddress.setText(qaddress)
-            self.SecondPageOptionA.mnemonic.setText(mnemonic + "\n" + "\n")
-            self.SecondPageOptionA.hexseed.setText(hexseed)
+            self.walletDetails.qaddress.setText(qaddress)
+            self.walletDetails.mnemonic.setText(mnemonic + "\n" + "\n")
+            self.walletDetails.hexseed.setText(hexseed)
         self.last_page_id = page_id
     
     def saveFile(self):
@@ -69,7 +69,7 @@ class MyWizard(QtWidgets.QWizard):
             filter=file_filter,
             initialFilter='Json file (*.json)')
         dialog = open(dialog_save_file_name[0], "w")
-        dialog.write(json.dumps(AESModel.encrypt(self.SecondPageOptionA.qaddress.toPlainText() + " " + self.SecondPageOptionA.mnemonic.text().rstrip() + " " + self.SecondPageOptionA.hexseed.text(), self.firstPageOptionA.passwordline_edit.text())))
+        dialog.write(json.dumps(AESModel.encrypt(self.walletDetails.qaddress.toPlainText() + " " + self.walletDetails.mnemonic.text().rstrip() + " " + self.walletDetails.hexseed.text(), self.createWallet.passwordline_edit.text())))
         dialog.close()
 
 
@@ -84,7 +84,7 @@ class MyWizard(QtWidgets.QWizard):
                 initialFilter='Json file (*.json)')
         try:
             dialog = open(dialog_save_file_name[0], "r")
-            main.data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.secondPageOptionB.passwordline_edit.text())))
+            main.data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.openWalletFile.passwordline_edit.text())))
             dialog.close()
             QMessageBox.about(self, "Success!", "Correct password!")
         except ValueError:
@@ -95,22 +95,22 @@ class MyWizard(QtWidgets.QWizard):
         mnemonic = []
         hexseed = []
         if QWizard.hasVisitedPage(self, 2):
-            qrl_address.append(self.SecondPageOptionA.qaddress.toPlainText())
-            mnemonic.append(self.SecondPageOptionA.mnemonic.text().rstrip())
-            hexseed.append(self.SecondPageOptionA.hexseed.text())
+            qrl_address.append(self.walletDetails.qaddress.toPlainText())
+            mnemonic.append(self.walletDetails.mnemonic.text().rstrip())
+            hexseed.append(self.walletDetails.hexseed.text())
         elif QWizard.hasVisitedPage(self, 3):
             qrl_address.append(main.data[0].split(" ")[0])
             mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
             hexseed.append(main.data[0].split(" ")[35])
         elif QWizard.hasVisitedPage(self, 4):
-            if self.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
-                qrl_address.append(Model.recoverAddressMnemonic(self.thirdPageOptionC.seedline_edit.text()))
-                mnemonic.append(self.thirdPageOptionC.seedline_edit.text())
-                hexseed.append(Model.recoverHexseedMnemonic(self.thirdPageOptionC.seedline_edit.text()))
-            elif self.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
-                qrl_address.append(Model.recoverAddressHexseed(self.thirdPageOptionC.seedline_edit.text()))
-                mnemonic.append(Model.recoverMnemonicHexseed(self.thirdPageOptionC.seedline_edit.text()))
-                hexseed.append(self.thirdPageOptionC.seedline_edit.text())
+            if self.restoreWallet.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(self.restoreWallet.seedline_edit.text()))
+                mnemonic.append(self.restoreWallet.seedline_edit.text())
+                hexseed.append(Model.recoverHexseedMnemonic(self.restoreWallet.seedline_edit.text()))
+            elif self.restoreWallet.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(self.restoreWallet.seedline_edit.text()))
+                mnemonic.append(Model.recoverMnemonicHexseed(self.restoreWallet.seedline_edit.text()))
+                hexseed.append(self.restoreWallet.seedline_edit.text())
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
         img = qrcode.make(qrl_address[0])
@@ -151,7 +151,7 @@ class IntroPage(QtWidgets.QWizardPage):
 
         return 0
 
-class FirstPageOptionA(QtWidgets.QWizardPage):
+class CreateWallet(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -184,7 +184,7 @@ class FirstPageOptionA(QtWidgets.QWizardPage):
     def nextId(self) -> int:
         return 2
 
-class SecondPageOptionA(QtWidgets.QWizardPage):
+class WalletDetails(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle("Wallet details")
@@ -229,7 +229,7 @@ class SecondPageOptionA(QtWidgets.QWizardPage):
     def nextId(self) -> int:
         return 5
 
-class SecondPageOptionB(QtWidgets.QWizardPage):
+class OpenWalletFile(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle("Open wallet file")
@@ -275,7 +275,7 @@ class MouseTracker(QtCore.QObject):
         return super().eventFilter(o, e)
 
 
-class ThirdPageOptionC(QtWidgets.QWizardPage):
+class RestoreWallet(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -373,14 +373,14 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
             hexseed.append(main.data[0].split(" ")[35])
         elif QWizard.hasVisitedPage(main, 4):
-            if main.thirdPageOptionC.seedline_edit.text()[:6] ==  "absorb":
-                qrl_address.append(Model.recoverAddressMnemonic(main.thirdPageOptionC.seedline_edit.text()))
-                mnemonic.append(main.thirdPageOptionC.seedline_edit.text())
-                hexseed.append(Model.recoverHexseedMnemonic(main.thirdPageOptionC.seedline_edit.text()))
-            elif main.thirdPageOptionC.seedline_edit.text()[:2] ==  "01":
-                qrl_address.append(Model.recoverAddressHexseed(main.thirdPageOptionC.seedline_edit.text()))
-                mnemonic.append(Model.recoverMnemonicHexseed(main.thirdPageOptionC.seedline_edit.text()))
-                hexseed.append(main.thirdPageOptionC.seedline_edit.text())
+            if main.RestoreWallet.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(main.RestoreWallet.seedline_edit.text()))
+                mnemonic.append(main.RestoreWallet.seedline_edit.text())
+                hexseed.append(Model.recoverHexseedMnemonic(main.RestoreWallet.seedline_edit.text()))
+            elif main.RestoreWallet.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(main.RestoreWallet.seedline_edit.text()))
+                mnemonic.append(Model.recoverMnemonicHexseed(main.RestoreWallet.seedline_edit.text()))
+                hexseed.append(main.RestoreWallet.seedline_edit.text())
         qrl_address_validator = self.qrlvalidator.validate(self.send_input.text(), 0)
         amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
         fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
@@ -404,7 +404,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             ots_key = int(self.ots_key_index_input.text())
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
-            msg.setText("Are you sure you proceed?")
+            msg.setText("Do you want to proceed?")
             msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + self.fee_input.text() + "\nOTS Key Index: " + self.ots_key_index_input.text())
             msg.setWindowTitle("QRL Confirmation")
             msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
