@@ -14,6 +14,12 @@ class Model:
         xmss = XMSS(XmssFast(seed, xmss_height, xmss_hash))
         return xmss.qaddress, xmss.mnemonic, xmss.hexseed
 
+    def getAddressExperimental(xmss_height, xmss_hash, mouse_seed):
+        # print(xmss_height, xmss_hash)
+        print("Seed: " + mouse_seed)
+        # xmss = XMSS(XmssFast(mouse_seed, xmss_height, xmss_hash))
+        # return xmss.qaddress, xmss.mnemonic, xmss.hexseed
+
     def recoverAddressHexseed(seed):
         bin_seed = hstr2bin(seed)
         recovered_xmss = XMSS.from_extended_seed(bin_seed)
@@ -35,14 +41,14 @@ class Model:
         return recovered_xmss.hexseed
     
     def getAddressBalance(address):
-        request = requests.get('https://explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["balance"]
 
     def getAddressOtsKeyIndex(address):
-        request = requests.get('https://explorer.theqrl.org/api/a/'+address)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
@@ -50,7 +56,7 @@ class Model:
 
     
     def getTransactionByHash(tx_hash):
-        request = requests.get('https://explorer.theqrl.org/api/tx/'+tx_hash)
+        request = requests.get('https://testnet-explorer.theqrl.org/api/tx/'+tx_hash)
         response = request.text
         getTXResp = json.loads(response)
         jsonResponse = getTXResp

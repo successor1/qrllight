@@ -23,6 +23,7 @@ from PIL import Image
 import simplejson as json
 from pyqrllib.pyqrllib import hstr2bin
 from qrl.crypto.xmss import XMSS
+import random
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
@@ -51,6 +52,8 @@ class MyWizard(QtWidgets.QWizard):
         self.openWalletFile.openFileBtn.clicked.connect(self.openFile)
         self.finished.connect(self.onFinished)
 
+    seed_data = []
+
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
             combo_height_short = self.createWallet.combo_height
@@ -62,16 +65,19 @@ class MyWizard(QtWidgets.QWizard):
             self.walletDetails.qaddress.setText(qaddress)
             self.walletDetails.mnemonic.setText(mnemonic + "\n" + "\n")
             self.walletDetails.hexseed.setText(hexseed)
-        # if page_id == 4 and self.last_page_id == 3:
-        #     combo_height_short = self.createWallet.combo_height
-        #     combo_hash_short = self.createWallet.combo_hash
-        #     if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
-        #         combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
-        #         combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
-        #     qaddress, mnemonic, hexseed = Model.getAddressExperimental(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()])
-        #     self.walletDetails.qaddress.setText(qaddress)
-        #     self.walletDetails.mnemonic.setText(mnemonic + "\n" + "\n")
-        #     self.walletDetails.hexseed.setText(hexseed)
+        if page_id == 4 and self.last_page_id == 3:
+            combo_height_short = self.createSeedByMouse.combo_height
+            combo_hash_short = self.createSeedByMouse.combo_hash
+            if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
+                combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
+                combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
+            seed_data = [i for i in self.seed_data if int(i) < 255]
+            random.shuffle(seed_data)
+            # print(', '.join(seed_data[:48]))
+            qaddress, mnemonic, hexseed = Model.getAddressExperimental(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()], ', '.join(seed_data[:48]))
+            self.walletDetailsExperimental.qaddress.setText(qaddress)
+            self.walletDetailsExperimental.mnemonic.setText(mnemonic + "\n" + "\n")
+            self.walletDetailsExperimental.hexseed.setText(hexseed)
         self.last_page_id = page_id
     
     def saveFile(self):
@@ -297,6 +303,10 @@ class CreateSeedByMouse(QtWidgets.QWizardPage):
         self.label_position.move(pos + delta)
         self.label_position.setText("(%d, %d)" % (pos.x(), pos.y()))
         self.label_position.adjustSize()
+        main.seed_data.append("%d" % (pos.x()))
+        main.seed_data.append("%d" % (pos.y()))
+        print(main.seed_data)
+
 
     def nextId(self) -> int:
         return 4
