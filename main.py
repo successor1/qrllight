@@ -49,6 +49,7 @@ class MyWizard(QtWidgets.QWizard):
 
         self.currentIdChanged.connect(self.next_callback)
         self.walletDetails.save_wallet_file.clicked.connect(self.saveFile)
+        self.walletDetailsExperimental.save_wallet_file.clicked.connect(self.saveFile)
         self.openWalletFile.openFileBtn.clicked.connect(self.openFile)
         self.finished.connect(self.onFinished)
 
@@ -73,14 +74,14 @@ class MyWizard(QtWidgets.QWizard):
                 combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
             seed_data = [i for i in self.seed_data if int(i) < 255]
             random.shuffle(seed_data)
-            # print(', '.join(seed_data[:48]))
-            qaddress, mnemonic, hexseed = Model.getAddressExperimental(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()], ', '.join(seed_data[:48]))
+            new_seed_data = [int(g) for g in seed_data[:48]]
+            qaddress, mnemonic, hexseed = Model.getAddressExperimental(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()], tuple(new_seed_data[:48]))
             self.walletDetailsExperimental.qaddress.setText(qaddress)
             self.walletDetailsExperimental.mnemonic.setText(mnemonic + "\n" + "\n")
             self.walletDetailsExperimental.hexseed.setText(hexseed)
         self.last_page_id = page_id
     
-    def saveFile(self):
+    def saveFile(self, page_id: int):
         file_filter = 'Json file (*.json)'
         dialog_save_file_name = QFileDialog.getSaveFileName(
             parent=self,
@@ -89,8 +90,12 @@ class MyWizard(QtWidgets.QWizard):
             filter=file_filter,
             initialFilter='Json file (*.json)')
         dialog = open(dialog_save_file_name[0], "w")
-        dialog.write(json.dumps(AESModel.encrypt(self.walletDetails.qaddress.toPlainText() + " " + self.walletDetails.mnemonic.text().rstrip() + " " + self.walletDetails.hexseed.text(), self.createWallet.passwordline_edit.text())))
+        if page_id == 2 and self.last_page_id == 1:
+            dialog.write(json.dumps(AESModel.encrypt(self.walletDetails.qaddress.toPlainText() + " " + self.walletDetails.mnemonic.text().rstrip() + " " + self.walletDetails.hexseed.text(), self.createWallet.passwordline_edit.text())))
+        elif page_id == 4 and self.last_page_id == 3:
+            dialog.write(json.dumps(AESModel.encrypt(self.walletDetailsExperimental.qaddress.toPlainText() + " " + self.walletDetailsExperimental.mnemonic.text().rstrip() + " " + self.walletDetailsExperimental.hexseed.text(), self.createSeedByMouse.passwordline_edit.text())))
         dialog.close()
+        self.last_page_id = page_id
 
 
     data = []
@@ -114,23 +119,27 @@ class MyWizard(QtWidgets.QWizard):
         qrl_address = []
         mnemonic = []
         hexseed = []
-        if QWizard.hasVisitedPage(self, 2):
-            qrl_address.append(self.walletDetails.qaddress.toPlainText())
-            mnemonic.append(self.walletDetails.mnemonic.text().rstrip())
-            hexseed.append(self.walletDetails.hexseed.text())
-        elif QWizard.hasVisitedPage(self, 3):
+        if QWizard.hasVisitedPage(main, 2):
+            qrl_address.append(main.walletDetails.qaddress.toPlainText())
+            mnemonic.append(main.walletDetails.mnemonic.text().rstrip())
+            hexseed.append(main.walletDetails.hexseed.text())
+        elif QWizard.hasVisitedPage(main, 5):
             qrl_address.append(main.data[0].split(" ")[0])
             mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
             hexseed.append(main.data[0].split(" ")[35])
-        elif QWizard.hasVisitedPage(self, 4):
-            if self.restoreWallet.seedline_edit.text()[:6] ==  "absorb":
-                qrl_address.append(Model.recoverAddressMnemonic(self.restoreWallet.seedline_edit.text()))
-                mnemonic.append(self.restoreWallet.seedline_edit.text())
-                hexseed.append(Model.recoverHexseedMnemonic(self.restoreWallet.seedline_edit.text()))
-            elif self.restoreWallet.seedline_edit.text()[:2] ==  "01":
-                qrl_address.append(Model.recoverAddressHexseed(self.restoreWallet.seedline_edit.text()))
-                mnemonic.append(Model.recoverMnemonicHexseed(self.restoreWallet.seedline_edit.text()))
-                hexseed.append(self.restoreWallet.seedline_edit.text())
+        elif QWizard.hasVisitedPage(main, 6):
+            if main.restoreWallet.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(main.restoreWallet.seedline_edit.text()))
+                mnemonic.append(main.restoreWallet.seedline_edit.text())
+                hexseed.append(Model.recoverHexseedMnemonic(main.restoreWallet.seedline_edit.text()))
+            elif main.restoreWallet.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(main.restoreWallet.seedline_edit.text()))
+                mnemonic.append(Model.recoverMnemonicHexseed(main.restoreWallet.seedline_edit.text()))
+                hexseed.append(main.restoreWallet.seedline_edit.text())
+        elif QWizard.hasVisitedPage(main, 3):
+            qrl_address.append(main.walletDetailsExperimental.qaddress.toPlainText())
+            mnemonic.append(main.walletDetailsExperimental.mnemonic.text().rstrip())
+            hexseed.append(main.walletDetailsExperimental.hexseed.text())
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
         img = qrcode.make(qrl_address[0])
@@ -465,22 +474,26 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         mnemonic = []
         hexseed = []
         if QWizard.hasVisitedPage(main, 2):
-            qrl_address.append(main.SecondPageOptionA.qaddress.toPlainText())
-            mnemonic.append(main.SecondPageOptionA.mnemonic.text().rstrip())
-            hexseed.append(main.SecondPageOptionA.hexseed.text())
-        elif QWizard.hasVisitedPage(main, 3):
+            qrl_address.append(main.walletDetails.qaddress.toPlainText())
+            mnemonic.append(main.walletDetails.mnemonic.text().rstrip())
+            hexseed.append(main.walletDetails.hexseed.text())
+        elif QWizard.hasVisitedPage(main, 5):
             qrl_address.append(main.data[0].split(" ")[0])
             mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
             hexseed.append(main.data[0].split(" ")[35])
-        elif QWizard.hasVisitedPage(main, 4):
-            if main.RestoreWallet.seedline_edit.text()[:6] ==  "absorb":
-                qrl_address.append(Model.recoverAddressMnemonic(main.RestoreWallet.seedline_edit.text()))
-                mnemonic.append(main.RestoreWallet.seedline_edit.text())
-                hexseed.append(Model.recoverHexseedMnemonic(main.RestoreWallet.seedline_edit.text()))
-            elif main.RestoreWallet.seedline_edit.text()[:2] ==  "01":
-                qrl_address.append(Model.recoverAddressHexseed(main.RestoreWallet.seedline_edit.text()))
-                mnemonic.append(Model.recoverMnemonicHexseed(main.RestoreWallet.seedline_edit.text()))
-                hexseed.append(main.RestoreWallet.seedline_edit.text())
+        elif QWizard.hasVisitedPage(main, 6):
+            if main.restoreWallet.seedline_edit.text()[:6] ==  "absorb":
+                qrl_address.append(Model.recoverAddressMnemonic(main.restoreWallet.seedline_edit.text()))
+                mnemonic.append(main.restoreWallet.seedline_edit.text())
+                hexseed.append(Model.recoverHexseedMnemonic(main.restoreWallet.seedline_edit.text()))
+            elif main.restoreWallet.seedline_edit.text()[:2] ==  "01":
+                qrl_address.append(Model.recoverAddressHexseed(main.restoreWallet.seedline_edit.text()))
+                mnemonic.append(Model.recoverMnemonicHexseed(main.restoreWallet.seedline_edit.text()))
+                hexseed.append(main.restoreWallet.seedline_edit.text())
+        elif QWizard.hasVisitedPage(main, 3):
+            qrl_address.append(main.walletDetailsExperimental.qaddress.toPlainText())
+            mnemonic.append(main.walletDetailsExperimental.mnemonic.text().rstrip())
+            hexseed.append(main.walletDetailsExperimental.hexseed.text())
         qrl_address_validator = self.qrlvalidator.validate(self.send_input.text(), 0)
         amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
         fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
