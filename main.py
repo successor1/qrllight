@@ -49,7 +49,7 @@ class MyWizard(QtWidgets.QWizard):
 
         self.currentIdChanged.connect(self.next_callback)
         self.walletDetails.save_wallet_file.clicked.connect(self.saveFile)
-        self.walletDetailsExperimental.save_wallet_file.clicked.connect(self.saveFile)
+        self.walletDetailsExperimental.save_wallet_file.clicked.connect(self.saveFileExperimental)
         self.openWalletFile.openFileBtn.clicked.connect(self.openFile)
         self.finished.connect(self.onFinished)
 
@@ -81,7 +81,7 @@ class MyWizard(QtWidgets.QWizard):
             self.walletDetailsExperimental.hexseed.setText(hexseed)
         self.last_page_id = page_id
     
-    def saveFile(self, page_id: int):
+    def saveFile(self):
         file_filter = 'Json file (*.json)'
         dialog_save_file_name = QFileDialog.getSaveFileName(
             parent=self,
@@ -90,14 +90,21 @@ class MyWizard(QtWidgets.QWizard):
             filter=file_filter,
             initialFilter='Json file (*.json)')
         dialog = open(dialog_save_file_name[0], "w")
-        if page_id == 2 and self.last_page_id == 1:
-            dialog.write(json.dumps(AESModel.encrypt(self.walletDetails.qaddress.toPlainText() + " " + self.walletDetails.mnemonic.text().rstrip() + " " + self.walletDetails.hexseed.text(), self.createWallet.passwordline_edit.text())))
-        elif page_id == 4 and self.last_page_id == 3:
-            dialog.write(json.dumps(AESModel.encrypt(self.walletDetailsExperimental.qaddress.toPlainText() + " " + self.walletDetailsExperimental.mnemonic.text().rstrip() + " " + self.walletDetailsExperimental.hexseed.text(), self.createSeedByMouse.passwordline_edit.text())))
+        dialog.write(json.dumps(AESModel.encrypt(self.walletDetails.qaddress.toPlainText() + " " + self.walletDetails.mnemonic.text().rstrip() + " " + self.walletDetails.hexseed.text(), self.createWallet.passwordline_edit.text())))
         dialog.close()
-        self.last_page_id = page_id
 
-
+    def saveFileExperimental(self):
+        file_filter = 'Json file (*.json)'
+        dialog_save_file_name = QFileDialog.getSaveFileName(
+            parent=self,
+            caption='Save file',
+            directory= 'wallet.json',
+            filter=file_filter,
+            initialFilter='Json file (*.json)')
+        dialog = open(dialog_save_file_name[0], "w")
+        dialog.write(json.dumps(AESModel.encrypt(self.walletDetailsExperimental.qaddress.toPlainText() + " " + self.walletDetailsExperimental.mnemonic.text().rstrip() + " " + self.walletDetailsExperimental.hexseed.text(), self.createSeedByMouse.passwordline_edit.text())))
+        dialog.close()
+        
     data = []
     def openFile(self) -> int:
         file_filter = 'Json file (*.json)'
