@@ -15,10 +15,8 @@ class Model:
         return xmss.qaddress, xmss.mnemonic, xmss.hexseed
 
     def getAddressExperimental(xmss_height, xmss_hash, mouse_seed):
-        # print(xmss_height, xmss_hash)
-        print("Seed: " + mouse_seed)
-        # xmss = XMSS(XmssFast(mouse_seed, xmss_height, xmss_hash))
-        # return xmss.qaddress, xmss.mnemonic, xmss.hexseed
+        xmss = XMSS(XmssFast(mouse_seed, xmss_height, xmss_hash))
+        return xmss.qaddress, xmss.mnemonic, xmss.hexseed
 
     def recoverAddressHexseed(seed):
         bin_seed = hstr2bin(seed)
