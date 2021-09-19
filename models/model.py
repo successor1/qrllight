@@ -68,4 +68,4 @@ class Model:
 # print(Model.getTransactionByHash("357db33e4fc2944fe6bb3bc630a710df7e107e8394fa154196a6ce7db705e786")["transaction"]["tx"]["amount"])
 
 # #check if it comes from own address or not (+ or -)
-# print(Model.getTransactionByHash("1f2a9b8784cc45c41efed0519bc85d3c7040c0f59faf9767f1415f252c8ea81d")["transaction"]["explorer"]["from_hex"])
+# print(Model.getTransactionByHash("0c95416023f147bb7447a0160285cc4ae5f1a1dc02d3b97e528f04577cacfd24")["transaction"]["explorer"]["from_hex"])

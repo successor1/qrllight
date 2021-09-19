@@ -45,7 +45,7 @@ class TableOutput:
                                                               page_number=1)
         response = stub.GetMiniTransactionsByAddress(request, timeout=CONNECTION_TIMEOUT)
         transaction_hashes = []
-        for i in range(0, 10):
+        for i in range(len(response.mini_transactions)):
             transaction_hashes.append(response.mini_transactions[i].transaction_hash)
         return transaction_hashes
 
@@ -59,8 +59,10 @@ class TableOutput:
                                                               page_number=1)
         response = stub.GetMiniTransactionsByAddress(request, timeout=CONNECTION_TIMEOUT)
         amount = []
-        for i in range(0, 10):
+        for i in range(len(response.mini_transactions)):
             amount.append(response.mini_transactions[i].amount)
         return amount
 
 # print(TableOutput.getMiniTransactionsByAddressHashes("Q0105006e70719c46cc85a69d6b7d0a1e642968d5c996fd9fa4b6641337f13ba2213749fd19dd11"))
+
+# Q0105006e70719c46cc85a69d6b7d0a1e642968d5c996fd9fa4b6641337f13ba2213749fd19dd11

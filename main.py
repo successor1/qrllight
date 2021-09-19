@@ -1,9 +1,10 @@
+from test import qrl
 from time import time
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import * 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -24,6 +25,8 @@ import simplejson as json
 from pyqrllib.pyqrllib import hstr2bin
 from qrl.crypto.xmss import XMSS
 import random
+from models.GetMiniTransactionsByAddress import TableOutput
+from datetime import datetime
 
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
@@ -104,7 +107,7 @@ class MyWizard(QtWidgets.QWizard):
         dialog = open(dialog_save_file_name[0], "w")
         dialog.write(json.dumps(AESModel.encrypt(self.walletDetailsExperimental.qaddress.toPlainText() + " " + self.walletDetailsExperimental.mnemonic.text().rstrip() + " " + self.walletDetailsExperimental.hexseed.text(), self.createSeedByMouse.passwordline_edit.text())))
         dialog.close()
-        
+
     data = []
     def openFile(self) -> int:
         file_filter = 'Json file (*.json)'
@@ -158,6 +161,39 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
+        rowPosition = mainWindow.transaction_table.rowCount()
+        transaction_hashes = []
+        transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
+        timestamp_seconds = []
+        date_time = []
+        amount = []
+        amount_send_receive = []
+        for x in transaction_hashes[0]:
+            timestamp_seconds.append(Model.getTransactionByHash(x)["transaction"]["header"]["timestamp_seconds"])
+            try:
+                amount.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["outputs"][0]["amount"])
+                amount_send_receive.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["from_hex"])
+            except KeyError:
+                amount.append(0)
+        for i in timestamp_seconds:
+            date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
+        print(amount)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        mainWindow.transaction_table.insertRow(rowPosition)
+        for x, y, date, amount, plusminus in zip(range(0, 30, 3), range(2, 30, 3), date_time, amount, amount_send_receive):
+            mainWindow.transaction_table.setItem(rowPosition , x, QTableWidgetItem(date))
+            if plusminus != qrl_address[0]:
+                mainWindow.transaction_table.setItem(rowPosition , y, QTableWidgetItem("+" + str(amount)))
+            else:
+                mainWindow.transaction_table.setItem(rowPosition , y, QTableWidgetItem("-" + str(amount)))
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -459,12 +495,15 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.setupUi(self)
         self.model = Model()
 
-        regexp_qrl = QRegExp(r'^[a-zA-Z0-9]{79}$')
         regexp_amount_fee = QRegExp(r'^\d+(\.\d+)*$')
         regexp_ots_key = QRegExp(r'^[0-9]*$')
-        self.qrlvalidator = QRegExpValidator(regexp_qrl)
         self.amount_fee_validator = QRegExpValidator(regexp_amount_fee)
         self.ots_key_validator = QRegExpValidator(regexp_ots_key)
+
+        header = self.transaction_table.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
@@ -501,47 +540,50 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             qrl_address.append(main.walletDetailsExperimental.qaddress.toPlainText())
             mnemonic.append(main.walletDetailsExperimental.mnemonic.text().rstrip())
             hexseed.append(main.walletDetailsExperimental.hexseed.text())
-        qrl_address_validator = self.qrlvalidator.validate(self.send_input.text(), 0)
         amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
         fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
         ots_key_validator = self.ots_key_validator.validate(self.ots_key_index_input.text(), 0)
 
-        if qrl_address_validator[0] != 2:
-            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty QRL address input!")
-        elif amount_validator[0] != 2:
+        if amount_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount input")
         elif fee_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee input")
         elif ots_key_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty OTS key input")
         else:
-            addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
-            amounts = [int(float(self.amount_input.text()) * 1000000000)]
-            message_data = self.description_input.text().encode() if self.description_input.text() else None
-            fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
-            xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
-            src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
-            ots_key = int(self.ots_key_index_input.text())
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Do you want to proceed?")
-            msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + self.fee_input.text() + "\nOTS Key Index: " + self.ots_key_index_input.text())
-            msg.setWindowTitle("QRL Confirmation")
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-
-            returnValue = msg.exec()
-            if returnValue == QMessageBox.Cancel:
-                pass
+            if "," in self.send_input.text():
+                address_recipients = self.send_input.text().split(",")
+                print(address_recipients)
+                print(len(address_recipients))
+                for i in address_recipients:
+                    pass
             else:
-                models.TransferTransaction.tx_transfer(
-                    addrs_to,
-                    amounts,
-                    message_data,
-                    fee,
-                    xmss_pk,
-                    src_xmss,
-                    ots_key)
-                QMessageBox.about(self, "Succesful transaction", "Sent!")
+                addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
+                amounts = [int(float(self.amount_input.text()) * 1000000000)]
+                message_data = self.description_input.text().encode() if self.description_input.text() else None
+                fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
+                xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
+                src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+                ots_key = int(self.ots_key_index_input.text())
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("Do you want to proceed?")
+                msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + self.fee_input.text() + "\nOTS Key Index: " + self.ots_key_index_input.text())
+                msg.setWindowTitle("QRL Confirmation")
+                msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                returnValue = msg.exec()
+                if returnValue == QMessageBox.Cancel:
+                    pass
+                else:
+                    models.TransferTransaction.tx_transfer(
+                        addrs_to,
+                        amounts,
+                        message_data,
+                        fee,
+                        xmss_pk,
+                        src_xmss,
+                        ots_key)
+                    QMessageBox.about(self, "Succesful transaction", "Sent!")
 
     def update(self):
         self.balance_label.adjustSize()
