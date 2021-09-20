@@ -38,6 +38,8 @@ class MyWizard(QtWidgets.QWizard):
         self.walletDetails = WalletDetails()
         self.createSeedByMouse = CreateSeedByMouse()
         self.walletDetailsExperimental = WalletDetailsExperimental()
+        self.slavesJsonOptions = SlaveJsonOptions()
+        self.createSlavesJson = CreateSlavesJson()
         self.openWalletFile = OpenWalletFile()
         self.restoreWallet = RestoreWallet()
         self.lastPage = LastPage()
@@ -48,6 +50,8 @@ class MyWizard(QtWidgets.QWizard):
         self.addPage(self.walletDetailsExperimental)
         self.addPage(self.openWalletFile)
         self.addPage(self.restoreWallet)
+        self.addPage(self.slavesJsonOptions)
+        self.addPage(self.createSlavesJson)
         self.addPage(self.lastPage)
 
         self.currentIdChanged.connect(self.next_callback)
@@ -205,7 +209,13 @@ class IntroPage(QtWidgets.QWizardPage):
         self.radiobutton_1 = QRadioButton("Create new wallet")
         self.radiobutton_2 = QRadioButton("Open wallet file")
         self.radiobutton_3 = QRadioButton("Restore wallet from seed")
-        self.radiobutton_4 = QRadioButton("Create wallet by random mouse movements [Experimental]")
+        self.Separador = QFrame()
+        self.Separador.Shape(QFrame.HLine)
+        self.Separador.setLineWidth(1)
+        self.Separador.setFrameShape(QFrame.HLine)
+
+        self.radiobutton_4 = QRadioButton("Create a Slaves.json")
+        self.radiobutton_5 = QRadioButton("Create wallet by random mouse movements [Experimental]")
         self.radiobutton_2.setChecked(True)
 
         layout = QVBoxLayout(self)
@@ -213,7 +223,10 @@ class IntroPage(QtWidgets.QWizardPage):
         layout.addWidget(self.radiobutton_1)
         layout.addWidget(self.radiobutton_2)
         layout.addWidget(self.radiobutton_3)
+        layout.addWidget(self.Separador)
         layout.addWidget(self.radiobutton_4)
+        layout.addWidget(self.radiobutton_5)
+        
 
     def nextId(self) -> int:
         if self.radiobutton_1.isChecked():
@@ -223,6 +236,8 @@ class IntroPage(QtWidgets.QWizardPage):
         if self.radiobutton_3.isChecked():
             return 6
         if self.radiobutton_4.isChecked():
+            return 8
+        if self.radiobutton_5.isChecked():
             return 3
 
         return 0
@@ -303,7 +318,7 @@ class WalletDetails(QtWidgets.QWizardPage):
         layout.addWidget(self.save_wallet_file)
 
     def nextId(self) -> int:
-        return 7
+        return 9
 
 class CreateSeedByMouse(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -424,8 +439,37 @@ class WalletDetailsExperimental(QtWidgets.QWizardPage):
         layout.addWidget(self.save_wallet_file)
 
     def nextId(self) -> int:
-        return 7
+        return 9
 
+class SlaveJsonOptions(QtWidgets.QWizardPage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setTitle("Slaves.json requires a wallet")
+
+
+        self.label_description = QLabel("Select option:")
+        self.radiobutton_1 = QRadioButton("Open wallet file")
+        self.radiobutton_2 = QRadioButton("Restore wallet from seed")
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.label_description)
+        layout.addWidget(self.radiobutton_1)
+        layout.addWidget(self.radiobutton_2)
+
+    def nextId(self) -> int:
+        if self.radiobutton_1.isChecked():
+            return 5
+        if self.radiobutton_2.isChecked():
+            return 6
+        return 0
+
+class CreateSlavesJson(QtWidgets.QWizardPage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def nextId(self) -> int:
+        return 7
 
 class OpenWalletFile(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -444,7 +488,7 @@ class OpenWalletFile(QtWidgets.QWizardPage):
         self.setLayout(layout)
 
     def nextId(self) -> int:
-        return 7
+        return 9
 
 class RegExpValidator(QtGui.QRegularExpressionValidator):
     validationChanged = QtCore.pyqtSignal(QtGui.QValidator.State)
@@ -481,6 +525,9 @@ class RestoreWallet(QtWidgets.QWizardPage):
         elif state == QtGui.QValidator.Acceptable:
             colour = 'lime'
         self.seedline_edit.setStyleSheet('border: 1px solid %s' % colour)
+
+    def nextId(self) -> int:
+        return 9
 
 
 class LastPage(QtWidgets.QWizardPage):
@@ -544,19 +591,47 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
         ots_key_validator = self.ots_key_validator.validate(self.ots_key_index_input.text(), 0)
 
-        if amount_validator[0] != 2:
-            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount input")
-        elif fee_validator[0] != 2:
+        # if amount_validator[0] != 2:
+        #     QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount input")
+        if fee_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee input")
         elif ots_key_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty OTS key input")
         else:
-            if "," in self.send_input.text():
-                address_recipients = self.send_input.text().split(",")
-                print(address_recipients)
-                print(len(address_recipients))
-                for i in address_recipients:
+            if  len(self.send_input.text()) >= 159:
+                remove_first_char_addrs = [e[1:] for e in self.send_input.text().split()]
+                addrs_to_recipients = (' '.join(i for i in remove_first_char_addrs))
+                print(addrs_to_recipients)
+                amount_string = self.amount_input.text().split()
+                amount_int = map(int, amount_string)
+                amount_list = [i * 5 for i in list(amount_int)]
+                amount_recipients = (" ".join(i for i in list(map(str, amount_list))))
+                addrs_to = [bytes(hstr2bin(addrs_to_recipients))]
+                amounts = [int(float(amount_recipients))]
+                message_data = self.description_input.text().encode() if self.description_input.text() else None
+                fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
+                xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
+                src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+                ots_key = int(self.ots_key_index_input.text())
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("Do you want to proceed?")
+                msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + self.fee_input.text() + "\nOTS Key Index: " + self.ots_key_index_input.text())
+                msg.setWindowTitle("QRL Confirmation")
+                msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                returnValue = msg.exec()
+                if returnValue == QMessageBox.Cancel:
                     pass
+                else:
+                    models.TransferTransaction.tx_transfer(
+                        addrs_to,
+                        amounts,
+                        message_data,
+                        fee,
+                        xmss_pk,
+                        src_xmss,
+                        ots_key)
+                    QMessageBox.about(self, "Succesful transaction", "Sent!")
             else:
                 addrs_to = [bytes(hstr2bin(self.send_input.text()[1:]))]
                 amounts = [int(float(self.amount_input.text()) * 1000000000)]
