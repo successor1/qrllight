@@ -204,7 +204,6 @@ class MyWizard(QtWidgets.QWizard):
                 amount.append(0)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        print(amount)
         mainWindow.transaction_table.insertRow(rowPosition)
         mainWindow.transaction_table.insertRow(rowPosition)
         mainWindow.transaction_table.insertRow(rowPosition)
@@ -682,7 +681,6 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             remove_first_char_addrs = [e[1:] for e in self.send_input.text().split()]
             amount_string = self.amount_input.text().split()
             amount_int = map(int, amount_string)
-            print(amount_int)
             amount_list = [float(i) for i in list(amount_string)]
             addrs_to = remove_first_char_addrs
             amounts = amount_list
