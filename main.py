@@ -1,5 +1,5 @@
 from os import remove
-from test import qrl
+from models import Slaves
 from time import time
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
@@ -23,8 +23,9 @@ from qrl.crypto.xmss import XMSS
 import qrcode
 from PIL import Image
 import simplejson as json
-from pyqrllib.pyqrllib import hstr2bin
+from pyqrllib.pyqrllib import hstr2bin, XmssFast, QRLDescriptor
 from qrl.crypto.xmss import XMSS
+from qrl.crypto.doctest_data import *
 import random
 from models.GetMiniTransactionsByAddress import TableOutput
 from datetime import datetime
@@ -67,6 +68,7 @@ class MyWizard(QtWidgets.QWizard):
         self.finished.connect(self.onFinished)
 
     seed_data = []
+    data = []
 
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
@@ -92,6 +94,21 @@ class MyWizard(QtWidgets.QWizard):
             self.walletDetailsExperimental.qaddress.setText(qaddress)
             self.walletDetailsExperimental.mnemonic.setText(mnemonic + "\n" + "\n")
             self.walletDetailsExperimental.hexseed.setText(hexseed)
+        if page_id == 8 and self.last_page_id == 9:
+            qrl_address = []
+            mnemonic = []
+            hexseed = []
+            qrl_address.append(main.data[0].split(" ")[0])
+            mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
+            hexseed.append(main.data[0].split(" ")[35])
+            xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
+            src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+            xmss_height = src_xmss.height
+            xmss = XMSS.from_height(xmss_height)
+            xmss_extended_seed = xmss.extended_seed
+            Slaves.slave_tx_generate(xmss_pk, src_xmss, xmss_extended_seed)
+        if page_id == 8 and self.last_page_id == 10:
+            pass
         self.last_page_id = page_id
     
     def saveFile(self):
@@ -118,7 +135,7 @@ class MyWizard(QtWidgets.QWizard):
         dialog.write(json.dumps(AESModel.encrypt(self.walletDetailsExperimental.qaddress.toPlainText() + " " + self.walletDetailsExperimental.mnemonic.text().rstrip() + " " + self.walletDetailsExperimental.hexseed.text(), self.createSeedByMouse.passwordline_edit.text())))
         dialog.close()
 
-    data = []
+
     def openFile(self) -> int:
         file_filter = 'Json file (*.json)'
         dialog_save_file_name = QFileDialog.getOpenFileName(
@@ -476,6 +493,13 @@ class CreateSlavesJson(QtWidgets.QWizardPage):
     
         self.setTitle("Generating Slaves.json..")
 
+        self.generatedslave_label = QLabel("Your screen will be stuck for about 10 minutes. Please be patient.")
+        self.slave_number_label = QLabel()
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.generatedslave_label)
+        layout.addWidget(self.slave_number_label)
+
     def nextId(self) -> int:
         return 7
 
@@ -508,10 +532,12 @@ class OpenWalletFileSlaves(QtWidgets.QWizardPage):
         self.passwordline_edit.setEchoMode(2)
         self.passwordline_edit.setPlaceholderText("Enter password")
         self.openFileBtn = QPushButton("Import secure wallet file")
+        self.warning_label = QLabel("Your screen will be stuck for about 10 minutes on the next window.\nPlease be patient.")
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.password_qlabel)
         layout.addWidget(self.passwordline_edit)
         layout.addWidget(self.openFileBtn)
+        layout.addWidget(self.warning_label)
         self.setLayout(layout)
 
     def nextId(self) -> int:
