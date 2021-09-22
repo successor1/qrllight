@@ -41,8 +41,10 @@ class MyWizard(QtWidgets.QWizard):
         self.walletDetailsExperimental = WalletDetailsExperimental()
         self.slavesJsonOptions = SlaveJsonOptions()
         self.createSlavesJson = CreateSlavesJson()
+        self.openWalletFileSlaves = OpenWalletFileSlaves()
         self.openWalletFile = OpenWalletFile()
         self.restoreWallet = RestoreWallet()
+        self.restoreWalletSlaves = RestoreWalletSlaves()
         self.lastPage = LastPage()
         self.addPage(self.introPage)
         self.addPage(self.createWallet)
@@ -53,12 +55,15 @@ class MyWizard(QtWidgets.QWizard):
         self.addPage(self.restoreWallet)
         self.addPage(self.slavesJsonOptions)
         self.addPage(self.createSlavesJson)
+        self.addPage(self.openWalletFileSlaves)
+        self.addPage(self.restoreWalletSlaves)
         self.addPage(self.lastPage)
 
         self.currentIdChanged.connect(self.next_callback)
         self.walletDetails.save_wallet_file.clicked.connect(self.saveFile)
         self.walletDetailsExperimental.save_wallet_file.clicked.connect(self.saveFileExperimental)
         self.openWalletFile.openFileBtn.clicked.connect(self.openFile)
+        self.openWalletFileSlaves.openFileBtn.clicked.connect(self.openFile)
         self.finished.connect(self.onFinished)
 
     seed_data = []
@@ -237,7 +242,7 @@ class IntroPage(QtWidgets.QWizardPage):
         if self.radiobutton_3.isChecked():
             return 6
         if self.radiobutton_4.isChecked():
-            return 8
+            return 7
         if self.radiobutton_5.isChecked():
             return 3
 
@@ -319,7 +324,7 @@ class WalletDetails(QtWidgets.QWizardPage):
         layout.addWidget(self.save_wallet_file)
 
     def nextId(self) -> int:
-        return 9
+        return 11
 
 class CreateSeedByMouse(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -440,7 +445,7 @@ class WalletDetailsExperimental(QtWidgets.QWizardPage):
         layout.addWidget(self.save_wallet_file)
 
     def nextId(self) -> int:
-        return 9
+        return 11
 
 class SlaveJsonOptions(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -460,14 +465,16 @@ class SlaveJsonOptions(QtWidgets.QWizardPage):
 
     def nextId(self) -> int:
         if self.radiobutton_1.isChecked():
-            return 5
+            return 9
         if self.radiobutton_2.isChecked():
-            return 6
+            return 10
         return 0
 
 class CreateSlavesJson(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
+    
+        self.setTitle("Generating Slaves.json..")
 
     def nextId(self) -> int:
         return 7
@@ -489,7 +496,26 @@ class OpenWalletFile(QtWidgets.QWizardPage):
         self.setLayout(layout)
 
     def nextId(self) -> int:
-        return 9
+        return 11
+
+class OpenWalletFileSlaves(QtWidgets.QWizardPage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTitle("Open wallet file")
+
+        self.password_qlabel = QLabel("Password (optional):")
+        self.passwordline_edit = QLineEdit()
+        self.passwordline_edit.setEchoMode(2)
+        self.passwordline_edit.setPlaceholderText("Enter password")
+        self.openFileBtn = QPushButton("Import secure wallet file")
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.password_qlabel)
+        layout.addWidget(self.passwordline_edit)
+        layout.addWidget(self.openFileBtn)
+        self.setLayout(layout)
+
+    def nextId(self) -> int:
+        return 8
 
 class RegExpValidator(QtGui.QRegularExpressionValidator):
     validationChanged = QtCore.pyqtSignal(QtGui.QValidator.State)
@@ -528,7 +554,38 @@ class RestoreWallet(QtWidgets.QWizardPage):
         self.seedline_edit.setStyleSheet('border: 1px solid %s' % colour)
 
     def nextId(self) -> int:
-        return 9
+        return 11
+
+class RestoreWalletSlaves(QtWidgets.QWizardPage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setTitle("Restore your wallet")
+
+        self.seed_label = QLabel("Enter your seed:")
+        self.seedline_edit = QLineEdit()
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.addWidget(self.seed_label)
+        layout.addWidget(self.seedline_edit)
+
+        regexp_mnemonic = QtCore.QRegularExpression(r'((\b|\s)+\w+(\b|\s)+){34}|.{102}') #QRL address regex
+        
+        validator = RegExpValidator(regexp_mnemonic, self)
+        validator.validationChanged.connect(self.handleValidationChange)
+        self.seedline_edit.setValidator(validator)
+
+
+    def handleValidationChange(self, state):
+        if state == QtGui.QValidator.Invalid:
+            colour = 'red'
+        elif state == QtGui.QValidator.Intermediate:
+            colour = 'gold'
+        elif state == QtGui.QValidator.Acceptable:
+            colour = 'lime'
+        self.seedline_edit.setStyleSheet('border: 1px solid %s' % colour)
+
+    def nextId(self) -> int:
+        return 8
 
 
 class LastPage(QtWidgets.QWizardPage):
@@ -542,7 +599,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
 
         self.setupUi(self)
         self.model = Model()
-        
+
         regexp_fee =  QRegExp(r'[0-9]+|([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?')
         regexp_ots_key = QRegExp(r'^[0-9]*$')
         self.fee_validator = QRegExpValidator(regexp_fee)
