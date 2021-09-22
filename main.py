@@ -542,10 +542,10 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
 
         self.setupUi(self)
         self.model = Model()
-
-        regexp_amount_fee = QRegExp(r'^\d+(\.\d+)*$')
+        
+        regexp_fee =  QRegExp(r'[0-9]+|([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?')
         regexp_ots_key = QRegExp(r'^[0-9]*$')
-        self.amount_fee_validator = QRegExpValidator(regexp_amount_fee)
+        self.fee_validator = QRegExpValidator(regexp_fee)
         self.ots_key_validator = QRegExpValidator(regexp_ots_key)
 
         header = self.transaction_table.horizontalHeader()
@@ -588,22 +588,19 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             qrl_address.append(main.walletDetailsExperimental.qaddress.toPlainText())
             mnemonic.append(main.walletDetailsExperimental.mnemonic.text().rstrip())
             hexseed.append(main.walletDetailsExperimental.hexseed.text())
-        amount_validator = self.amount_fee_validator.validate(self.amount_input.text(), 0)
-        fee_validator = self.amount_fee_validator.validate(self.fee_input.text(), 0)
+        fee_validator = self.fee_validator.validate(self.fee_input.text(), 0)
         ots_key_validator = self.ots_key_validator.validate(self.ots_key_index_input.text(), 0)
 
-        # if amount_validator[0] != 2:
-        #     QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty amount input")
         if fee_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee input")
         elif ots_key_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty OTS key input")
         else:
             remove_first_char_addrs = [e[1:] for e in self.send_input.text().split()]
-            addrs_to_recipients = (' '.join(i for i in remove_first_char_addrs))
             amount_string = self.amount_input.text().split()
             amount_int = map(int, amount_string)
-            amount_list = [i for i in list(amount_int)]
+            print(amount_int)
+            amount_list = [float(i) for i in list(amount_string)]
             addrs_to = remove_first_char_addrs
             amounts = amount_list
             message_data = self.description_input.text().encode() if self.description_input.text() else None
