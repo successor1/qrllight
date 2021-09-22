@@ -10,7 +10,7 @@ from google.protobuf.json_format import MessageToJson
 from pyqrllib.pyqrllib import mnemonic2bin, hstr2bin, bin2hstr
 
 from qrl.core import config
-from qrl.core.Wallet import Wallet, WalletDecryptionError
+from qrl.core.Wallet import AddressItem, Wallet, WalletDecryptionError
 from qrl.core.misc.helper import parse_hexblob, parse_qaddress
 from qrl.core.MultiSigAddressState import MultiSigAddressState
 from qrl.core.txs.MessageTransaction import MessageTransaction
@@ -23,9 +23,6 @@ from qrl.core.txs.multisig.MultiSigCreate import MultiSigCreate
 from qrl.core.txs.multisig.MultiSigSpend import MultiSigSpend
 from qrl.crypto.xmss import XMSS, hash_functions
 from qrl.generated import qrl_pb2_grpc, qrl_pb2
-
-def _quanta_to_shor(x: Decimal, base=Decimal(config.dev.shor_per_quanta)) -> int:
-    print(int(Decimal(x * base).to_integral_value()))
 
 def tx_unbase64(tx_json_str):
     tx_json = json.loads(tx_json_str)
@@ -41,13 +38,27 @@ def base64tohex(data):
 CONNECTION_TIMEOUT = 5
 def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key):
  # Create transaction
+    master_addr = None
+    bytes_addrs_to = []
+    addrs_to_recipients = (' '.join(i for i in bytes_addrs_to))
+    if len(addrs_to) > 1:
+        for i in addrs_to:
+            bytes_addrs_to.append(bytes(hstr2bin(i)))
+    elif len(addrs_to) == 1:
+        bytes_addrs_to.append(bytes(hstr2bin(addrs_to[0])))
+
+    shor_amounts = [int(float(str(i) + "e9")) for i in amounts]
+    print(addrs_to)
+    print(shor_amounts)
+    amounts_recipients = (" ".join(i for i in list(map(str, shor_amounts))))
+    print(bytes_addrs_to)
     
-    tx = TransferTransaction.create(addrs_to = addrs_to,
-                                        amounts = amounts,
+    tx = TransferTransaction.create(addrs_to = bytes_addrs_to,
+                                        amounts = shor_amounts,
                                         message_data = message_data,
                                         fee = fee,
                                         xmss_pk= xmss_pk,
-                                        master_addr=None)
+                                        master_addr=master_addr)
 
         # Sign transaction
     src_xmss = src_xmss
