@@ -237,7 +237,7 @@ class IntroPage(QtWidgets.QWizardPage):
         self.Separador.setFrameShape(QFrame.HLine)
 
         self.radiobutton_4 = QRadioButton("Create a Slaves.json")
-        self.radiobutton_5 = QRadioButton("Create wallet by random mouse movements [Experimental]")
+        self.radiobutton_5 = QRadioButton("Create wallet by random mouse movements [Experimental] [Not safe]")
         self.radiobutton_2.setChecked(True)
 
         layout = QVBoxLayout(self)
@@ -490,9 +490,9 @@ class CreateSlavesJson(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
     
-        self.setTitle("Generating Slaves.json..")
+        self.setTitle("Slaves.json is finished!")
 
-        self.generatedslave_label = QLabel("Your screen will be stuck for about 10 minutes. Please be patient.")
+        self.generatedslave_label = QLabel("Move slaves.json file from current directory to the mining node inside ~/.qrl/")
         self.slave_number_label = QLabel()
 
         layout = QVBoxLayout(self)
@@ -500,7 +500,7 @@ class CreateSlavesJson(QtWidgets.QWizardPage):
         layout.addWidget(self.slave_number_label)
 
     def nextId(self) -> int:
-        return 7
+        return 11
 
 class OpenWalletFile(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
