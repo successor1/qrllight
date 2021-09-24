@@ -108,7 +108,24 @@ class MyWizard(QtWidgets.QWizard):
             xmss_extended_seed = xmss.extended_seed
             Slaves.slave_tx_generate(xmss_pk, src_xmss, xmss_extended_seed)
         if page_id == 8 and self.last_page_id == 10:
-            pass
+            qrl_address = []
+            mnemonic = []
+            hexseed = []
+            if QWizard.hasVisitedPage(main, 7):
+                if main.restoreWalletSlaves.seedline_edit.text()[:6] ==  "absorb":
+                    qrl_address.append(Model.recoverAddressMnemonic(main.restoreWalletSlaves.seedline_edit.text()))
+                    mnemonic.append(main.restoreWalletSlaves.seedline_edit.text())
+                    hexseed.append(Model.recoverHexseedMnemonic(main.restoreWalletSlaves.seedline_edit.text()))
+                elif main.restoreWalletSlaves.seedline_edit.text()[:2] ==  "01":
+                    qrl_address.append(Model.recoverAddressHexseed(main.restoreWalletSlaves.seedline_edit.text()))
+                    mnemonic.append(Model.recoverMnemonicHexseed(main.restoreWalletSlaves.seedline_edit.text()))
+                    hexseed.append(main.restoreWalletSlaves.seedline_edit.text())
+            xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
+            src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
+            xmss_height = src_xmss.height
+            xmss = XMSS.from_height(xmss_height)
+            xmss_extended_seed = xmss.extended_seed
+            Slaves.slave_tx_generate(xmss_pk, src_xmss, xmss_extended_seed)
         self.last_page_id = page_id
     
     def saveFile(self):
@@ -589,9 +606,11 @@ class RestoreWalletSlaves(QtWidgets.QWizardPage):
 
         self.seed_label = QLabel("Enter your seed:")
         self.seedline_edit = QLineEdit()
-        layout = QtWidgets.QHBoxLayout(self)
+        self.warning_label = QLabel("Your screen will be stuck for about 10 minutes on the next window.\nPlease be patient.")
+        layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.seed_label)
         layout.addWidget(self.seedline_edit)
+        layout.addWidget(self.warning_label)
 
         regexp_mnemonic = QtCore.QRegularExpression(r'((\b|\s)+\w+(\b|\s)+){34}|.{102}') #QRL address regex
         
