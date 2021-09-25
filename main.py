@@ -205,7 +205,6 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
-        rowPosition = mainWindow.transaction_table.rowCount()
         transaction_hashes = []
         transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
         timestamp_seconds = []
@@ -221,22 +220,10 @@ class MyWizard(QtWidgets.QWizard):
                 amount.append(0)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        mainWindow.transaction_table.insertRow(rowPosition)
-        for x, y, date, amount, plusminus in zip(range(0, 30, 3), range(2, 30, 3), date_time, amount, amount_send_receive):
-            mainWindow.transaction_table.setItem(rowPosition , x, QTableWidgetItem(date))
-            if plusminus != qrl_address[0]:
-                mainWindow.transaction_table.setItem(rowPosition , y, QTableWidgetItem("+" + str(amount)))
-            else:
-                mainWindow.transaction_table.setItem(rowPosition , y, QTableWidgetItem("-" + str(amount)))
+        mainWindow.transaction_table.setItem(0 , 2, QTableWidgetItem("test"))
+        for x, y, x1, y2 in zip(range(11), date_time, range(2, 30, 3), amount):
+            mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
+            mainWindow.transaction_table.setItem(x , x1, QTableWidgetItem(y2))
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
