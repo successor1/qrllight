@@ -214,7 +214,7 @@ class MyWizard(QtWidgets.QWizard):
         for x in transaction_hashes[0]:
             timestamp_seconds.append(Model.getTransactionByHash(x)["transaction"]["header"]["timestamp_seconds"])
             try:
-                amount.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["outputs"][0]["amount"])
+                amount.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["totalTransferred"])
                 amount_send_receive.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["from_hex"])
             except KeyError:
                 amount.append(0)
