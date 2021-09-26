@@ -212,18 +212,21 @@ class MyWizard(QtWidgets.QWizard):
         amount = []
         amount_send_receive = []
         for x in transaction_hashes[0]:
-            timestamp_seconds.append(Model.getTransactionByHash(x)["transaction"]["header"]["timestamp_seconds"])
+            resp = Model.getTransactionByHash(x)
+            timestamp_seconds.append(resp["transaction"]["header"]["timestamp_seconds"])
             try:
-                amount.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["totalTransferred"])
-                amount_send_receive.append(Model.getTransactionByHash(x)["transaction"]["explorer"]["from_hex"])
+                amount.append(resp["transaction"]["explorer"]["totalTransferred"])
+                amount_send_receive.append(resp["transaction"]["explorer"]["from_hex"])
             except KeyError:
                 amount.append(0)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        mainWindow.transaction_table.setItem(0 , 2, QTableWidgetItem("test"))
-        for x, y, x1, y2 in zip(range(11), date_time, range(2, 30, 3), amount):
+        for x, y, x1, y2, plusminus in zip(range(11), date_time, range(2, 30, 3), amount, amount_send_receive):
             mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
-            mainWindow.transaction_table.setItem(x , x1, QTableWidgetItem(y2))
+            if plusminus != qrl_address[0]:
+                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("+" + y2))
+            elif plusminus == qrl_address[0]:
+                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("-" + y2))
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
