@@ -30,6 +30,8 @@ import random
 from models.GetMiniTransactionsByAddress import TableOutput
 from datetime import datetime
 
+QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
         super().__init__(parent)
