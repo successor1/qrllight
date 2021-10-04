@@ -66,7 +66,7 @@ class MyWizard(QtWidgets.QWizard):
         self.walletDetails.save_wallet_file.clicked.connect(self.saveFile)
         self.walletDetailsExperimental.save_wallet_file.clicked.connect(self.saveFileExperimental)
         self.openWalletFile.openFileBtn.clicked.connect(self.openFile)
-        self.openWalletFileSlaves.openFileBtn.clicked.connect(self.openFile)
+        self.openWalletFileSlaves.openFileBtn.clicked.connect(self.openFileSlaves)
         self.finished.connect(self.onFinished)
 
     seed_data = []
@@ -170,6 +170,23 @@ class MyWizard(QtWidgets.QWizard):
             QMessageBox.about(self, "Success!", "Correct password!")
         except ValueError:
             QMessageBox.warning(self, "Wrong password!", "You have entered the wrong password!")
+
+    def openFileSlaves(self) -> int:
+        file_filter = 'Json file (*.json)'
+        dialog_save_file_name = QFileDialog.getOpenFileName(
+                parent=self,
+                caption='Open file',
+                directory= '.json',
+                filter=file_filter,
+                initialFilter='Json file (*.json)')
+        try:
+            dialog = open(dialog_save_file_name[0], "r")
+            main.data.append(bytes.decode(AESModel.decrypt(json.load(dialog), self.openWalletFileSlaves.passwordline_edit.text())))
+            dialog.close()
+            QMessageBox.about(self, "Success!", "Correct password!")
+        except ValueError:
+            QMessageBox.warning(self, "Wrong password!", "You have entered the wrong password!")
+
 
     def onFinished(self):
         qrl_address = []
