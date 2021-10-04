@@ -237,15 +237,17 @@ class MyWizard(QtWidgets.QWizard):
                 amount.append(resp["transaction"]["explorer"]["totalTransferred"])
                 amount_send_receive.append(resp["transaction"]["explorer"]["from_hex"])
             except KeyError:
-                amount.append(0)
+                amount.append((float(resp["transaction"]["tx"]["transfer"]["amounts"][0]) / 1000000000))
+                amount_send_receive.append(None)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        for x, y, x1, y2, plusminus in zip(range(11), date_time, range(2, 30, 3), amount, amount_send_receive):
+        for x, y, x1, y2, plusminus in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive):
+            print(amount_send_receive)
             mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
             if plusminus != qrl_address[0]:
-                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("+" + y2))
+                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("+" + str(y2)))
             elif plusminus == qrl_address[0]:
-                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("-" + y2))
+                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("-" + str(y2)))
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
