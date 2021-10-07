@@ -1,4 +1,6 @@
 from os import remove
+
+from google.protobuf import message
 from models import Slaves
 from time import time
 from views.view_ui import Ui_mainWindow
@@ -230,25 +232,31 @@ class MyWizard(QtWidgets.QWizard):
         date_time = []
         amount = []
         amount_send_receive = []
+        message_tx = []
         for x in transaction_hashes[0]:
             resp = Model.getTransactionByHash(x)
             timestamp_seconds.append(resp["transaction"]["header"]["timestamp_seconds"])
             try:
                 amount.append(resp["transaction"]["explorer"]["totalTransferred"])
                 amount_send_receive.append(resp["transaction"]["explorer"]["from_hex"])
+                message_tx.append("")
             except KeyError:
                 try:
                     amount.append((float(resp["transaction"]["tx"]["transfer"]["amounts"][0]) / 1000000000))
+                    
                 except KeyError:
                     if resp["transaction"]["tx"]["transactionType"] == 'transfer_token':
                         amount.append("token transfer")
                     else:
+                        message_tx.append(resp["transaction"]["tx"]["message"]["message_hash"])
                         amount.append("message")
                 amount_send_receive.append(None)
+        print(message_tx)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        for x, y, x1, y2, plusminus in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive):
+        for x, y, x1, y2, plusminus, range_message, message in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive, range(1, 28, 3), message_tx):
             mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
+            mainWindow.transaction_table.setItem(0 , range_message, QTableWidgetItem(str(message)))
             if plusminus == None:
                 mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem(str(y2)))
             elif plusminus != qrl_address[0]:
