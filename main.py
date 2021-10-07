@@ -247,10 +247,8 @@ class MyWizard(QtWidgets.QWizard):
                 amount_send_receive.append(None)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        print(amount_send_receive)
         for x, y, x1, y2, plusminus in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive):
             mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
-            print(plusminus)
             if plusminus == None:
                 mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem(str(y2)))
             elif plusminus != qrl_address[0]:
