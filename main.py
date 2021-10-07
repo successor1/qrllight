@@ -251,7 +251,6 @@ class MyWizard(QtWidgets.QWizard):
                         message_tx.append(resp["transaction"]["tx"]["message"]["message_hash"])
                         amount.append("message")
                 amount_send_receive.append(None)
-        print(message_tx)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
         for x, y, x1, y2, plusminus, range_message, message in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive, range(1, 28, 3), message_tx):
