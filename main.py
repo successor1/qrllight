@@ -237,14 +237,23 @@ class MyWizard(QtWidgets.QWizard):
                 amount.append(resp["transaction"]["explorer"]["totalTransferred"])
                 amount_send_receive.append(resp["transaction"]["explorer"]["from_hex"])
             except KeyError:
-                amount.append((float(resp["transaction"]["tx"]["transfer"]["amounts"][0]) / 1000000000))
+                try:
+                    amount.append((float(resp["transaction"]["tx"]["transfer"]["amounts"][0]) / 1000000000))
+                except KeyError:
+                    if resp["transaction"]["tx"]["transactionType"] == 'transfer_token':
+                        amount.append("token transfer")
+                    else:
+                        amount.append("message")
                 amount_send_receive.append(None)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
+        print(amount_send_receive)
         for x, y, x1, y2, plusminus in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive):
-            print(amount_send_receive)
             mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
-            if plusminus != qrl_address[0]:
+            print(plusminus)
+            if plusminus == None:
+                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem(str(y2)))
+            elif plusminus != qrl_address[0]:
                 mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("+" + str(y2)))
             elif plusminus == qrl_address[0]:
                 mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("-" + str(y2)))
@@ -559,7 +568,7 @@ class OpenWalletFileSlaves(QtWidgets.QWizardPage):
         self.passwordline_edit.setEchoMode(2)
         self.passwordline_edit.setPlaceholderText("Enter password")
         self.openFileBtn = QPushButton("Import secure wallet file")
-        self.warning_label = QLabel("Your screen will be stuck for about 10 minutes on the next window.\nPlease be patient.")
+        self.warning_label = QLabel("After clicking 'Next' button to begin, the slaves will be generated which will\ntake about 10 minutes. See the console for progress.\n\nPlease be patient.")
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.password_qlabel)
         layout.addWidget(self.passwordline_edit)
@@ -617,7 +626,7 @@ class RestoreWalletSlaves(QtWidgets.QWizardPage):
 
         self.seed_label = QLabel("Enter your seed:")
         self.seedline_edit = QLineEdit()
-        self.warning_label = QLabel("Your screen will be stuck for about 10 minutes on the next window.\nPlease be patient.")
+        self.warning_label = QLabel("After clicking 'Next' button to begin, the slaves will be generated which will\ntake about 10 minutes. See the console for progress.\n\nPlease be patient.")
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.seed_label)
         layout.addWidget(self.seedline_edit)
