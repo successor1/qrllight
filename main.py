@@ -529,7 +529,7 @@ class CreateSlavesJson(QtWidgets.QWizardPage):
     
         self.setTitle("Slaves.json is finished!")
 
-        self.generatedslave_label = QLabel("Move slaves.json file from current directory to the mining node inside ~/.qrl/")
+        self.generatedslave_label = QLabel("Move slaves.json file from current directory to the mining node inside ~/.qrl/\n\nYou can close the wallet now.")
         self.slave_number_label = QLabel()
 
         layout = QVBoxLayout(self)
