@@ -226,42 +226,63 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
+        rowPosition = mainWindow.transaction_table.rowCount()
         transaction_hashes = []
         transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
         timestamp_seconds = []
-        date_time = []
         amount = []
         amount_send_receive = []
         message_tx = []
+        date_time = []
         for x in transaction_hashes[0]:
             resp = Model.getTransactionByHash(x)
-            timestamp_seconds.append(resp["transaction"]["header"]["timestamp_seconds"])
             try:
+                timestamp_seconds.append(resp["transaction"]["header"]["timestamp_seconds"])
                 amount.append(resp["transaction"]["explorer"]["totalTransferred"])
-                amount_send_receive.append(resp["transaction"]["explorer"]["from_hex"])
-                message_tx.append("")
             except KeyError:
                 try:
                     amount.append((float(resp["transaction"]["tx"]["transfer"]["amounts"][0]) / 1000000000))
-                    
                 except KeyError:
                     if resp["transaction"]["tx"]["transactionType"] == 'transfer_token':
                         amount.append("token transfer")
                     else:
-                        message_tx.append(resp["transaction"]["tx"]["message"]["message_hash"])
                         amount.append("message")
+            try:
+                message_tx.append(resp["transaction"]["tx"]["message"]["message_hash"])
+            except KeyError:
+                message_tx.append(" ")
+            try:
+                amount_send_receive.append(resp["transaction"]["explorer"]["from_hex"])
+            except KeyError:
                 amount_send_receive.append(None)
         for i in timestamp_seconds:
             date_time.append(datetime.fromtimestamp(int(i)).strftime("%Y-%m-%d %I:%M:%S"))
-        for x, y, x1, y2, plusminus, range_message, message in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive, range(1, 28, 3), message_tx):
-            mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
-            mainWindow.transaction_table.setItem(0 , range_message, QTableWidgetItem(str(message)))
-            if plusminus == None:
-                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem(str(y2)))
+        x = 0
+        y = 1
+        z = 2
+        print(amount_send_receive)
+        for _ in range(len(date_time)):
+            mainWindow.transaction_table.insertRow(rowPosition)
+        for date_box, description_box, amount_box, plusminus in zip(date_time, message_tx, amount, amount_send_receive):
+            mainWindow.transaction_table.setItem(x, 0, QTableWidgetItem(date_box))
+            mainWindow.transaction_table.setItem(0, y, QTableWidgetItem(str(description_box)))
+            if plusminus == qrl_address[0]:
+                mainWindow.transaction_table.setItem(0, z, QTableWidgetItem("-" + str(amount_box)))
             elif plusminus != qrl_address[0]:
-                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("+" + str(y2)))
-            elif plusminus == qrl_address[0]:
-                mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("-" + str(y2)))
+                mainWindow.transaction_table.setItem(0, z, QTableWidgetItem("+" + str(amount_box)))
+            x += 1
+            y += 3
+            z += 3
+
+        # for x, y, x1, y2, plusminus, range_message, message in zip(range(len(date_time)), date_time, range(2, 30, 3), amount, amount_send_receive, range(1, 28, 3), message_tx):
+        #     mainWindow.transaction_table.setItem(x , 0, QTableWidgetItem(y))
+        #     mainWindow.transaction_table.setItem(0 , range_message, QTableWidgetItem(str(message)))
+        #     if plusminus == None:
+        #         mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem(str(y2)))
+        #     elif plusminus != qrl_address[0]:
+        #         mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("+" + str(y2)))
+        #     elif plusminus == qrl_address[0]:
+        #         mainWindow.transaction_table.setItem(0 , x1, QTableWidgetItem("-" + str(y2)))
 
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):

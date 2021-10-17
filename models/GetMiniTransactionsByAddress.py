@@ -2,11 +2,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 import heapq
-from unittest import TestCase
-from unittest.loader import TestLoader
-
 from grpc import ServicerContext, StatusCode
-from mock import Mock, MagicMock, patch, PropertyMock
 from pyqrllib.pyqrllib import str2bin, hstr2bin, bin2hstr
 
 from qrl.core import config
@@ -41,7 +37,7 @@ class TableOutput:
         channel = grpc.insecure_channel(node_public_address)
         stub = qrl_pb2_grpc.PublicAPIStub(channel)
         request = qrl_pb2.GetMiniTransactionsByAddressReq(address=binary_qrl_address,
-                                                              item_per_page=10,
+                                                              item_per_page=1000,
                                                               page_number=1)
         response = stub.GetMiniTransactionsByAddress(request, timeout=CONNECTION_TIMEOUT)
         transaction_hashes = []
@@ -55,7 +51,7 @@ class TableOutput:
         channel = grpc.insecure_channel(node_public_address)
         stub = qrl_pb2_grpc.PublicAPIStub(channel)
         request = qrl_pb2.GetMiniTransactionsByAddressReq(address=binary_qrl_address,
-                                                              item_per_page=10,
+                                                              item_per_page=1000,
                                                               page_number=1)
         response = stub.GetMiniTransactionsByAddress(request, timeout=CONNECTION_TIMEOUT)
         amount = []
