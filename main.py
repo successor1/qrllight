@@ -230,7 +230,7 @@ class MyWizard(QtWidgets.QWizard):
         transaction_hashes = []
         transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
         timestamp_seconds = []
-        amount = TableOutput.GetTransactionsByAddress(qrl_address[0])
+        amount = TableOutput.GetTransactionsByAddressAmounts(qrl_address[0])
         addr_from = TableOutput.GetTransactionsByAddressAddrFrom(qrl_address[0])
         message_tx = []
         date_time = []
@@ -254,10 +254,7 @@ class MyWizard(QtWidgets.QWizard):
         for date_box, description_box, amount_box_sent, plusminus in zip(date_time, message_tx, amount, addr_from):
             mainWindow.transaction_table.setItem(x, 0, QTableWidgetItem(date_box))
             mainWindow.transaction_table.setItem(0, y, QTableWidgetItem(str(description_box)))
-            if amount_box_sent == "+0.0":
-                mainWindow.transaction_table.setItem(0, z, QTableWidgetItem("Message or token"))
-            else:
-                mainWindow.transaction_table.setItem(0, z, QTableWidgetItem(amount_box_sent))
+            mainWindow.transaction_table.setItem(0, z, QTableWidgetItem(amount_box_sent))
             x += 1
             y += 3
             z += 3
