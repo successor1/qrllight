@@ -103,10 +103,7 @@ class TableOutput:
             elif response.transactions_detail[i].tx.transfer_token.amounts:
                 amount.append(str(response.transactions_detail[i].tx.transfer_token.amounts[0] / 10000000000) + " " + "Tokens")
             elif response.transactions_detail[i].tx.message.message_hash:
-                try:
-                    amount.append(response.transactions_detail[i].tx.message.message_hash.decode("utf-8"))
-                except:
-                    amount.append("Failed to decode")
+                amount.append("message")
             else:
                 for addressAmount in response.transactions_detail[i].tx.token.initial_balances:
                     amount.append("+" + str(addressAmount.amount / 10000000000) + " " + response.transactions_detail[i].tx.token.symbol.decode("utf-8"))
