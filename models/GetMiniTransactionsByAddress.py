@@ -76,20 +76,6 @@ class TableOutput:
             addr_from.append("Q" + bin2hstr(response.transactions_detail[i].addr_from))
         return addr_from
 
-    # def GetTransactionsByAddressAddrTo(qrl_address):
-    #     binary_qrl_address = bytes(hstr2bin(qrl_address[1:]))
-    #     node_public_address = 'testnet-1.automated.theqrl.org:19009'
-    #     channel = grpc.insecure_channel(node_public_address)
-    #     stub = qrl_pb2_grpc.PublicAPIStub(channel)
-    #     request = qrl_pb2.GetTransactionsByAddressReq(address=binary_qrl_address,
-    #                                                 item_per_page=1000000,
-    #                                                 page_number=1)
-    #     response = stub.GetTransactionsByAddress(request, timeout=CONNECTION_TIMEOUT)
-    #     addrs_to = []
-    #     for i in range(len(response.transactions_detail)):
-    #         addrs_to.append("Q" + bin2hstr(response.transactions_detail[i].tx.transfer.addrs_to[0]))
-    #     return addrs_to
-
     def GetTransactionsByAddressAmounts(qrl_address):
         binary_qrl_address = bytes(hstr2bin(qrl_address[1:]))
         node_public_address = 'testnet-1.automated.theqrl.org:19009'
@@ -137,8 +123,6 @@ class TableOutput:
             out.append('%s%.2f' % ('+' if s >=0 else '' , s))
             start = end
         x = 0
-        print(len(amount))
-        print(out)
         for index, item in enumerate(out):
             if item == "+0.00":
                 try:
@@ -148,7 +132,7 @@ class TableOutput:
                 x += 1
         return out
 
-# print(TableOutput.GetTransactionsByAddressAmounts("Q01050000d27c5ed754ad0d63944da0d365bfcdae250fcd4ffacab9aa79983db05aaf6ff42bc12d"))
+# print(TableOutput.GetTransactionsByAddressAmounts("Q010400b49d2ebb003d69db2a66cc179a87592649d9b83cfb32a1200f72dbc62b4aa4903b4dd322"))
 # print(TableOutput.GetTransactionsByAddressAmounts("Q010400b49d2ebb003d69db2a66cc179a87592649d9b83cfb32a1200f72dbc62b4aa4903b4dd322"))
 
 # Q0105006e70719c46cc85a69d6b7d0a1e642968d5c996fd9fa4b6641337f13ba2213749fd19dd11
