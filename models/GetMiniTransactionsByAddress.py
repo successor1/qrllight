@@ -109,7 +109,7 @@ class TableOutput:
                     amount.append("Failed to decode")
             else:
                 for addressAmount in response.transactions_detail[i].tx.token.initial_balances:
-                    amount.append(str(addressAmount.amount / 10000000000) + " " + response.transactions_detail[i].tx.token.symbol.decode("utf-8"))
+                    amount.append("+" + str(addressAmount.amount / 10000000000) + " " + response.transactions_detail[i].tx.token.symbol.decode("utf-8"))
         for brackets in amount_length_data:
             length_list.append(len(brackets))
         out = []
