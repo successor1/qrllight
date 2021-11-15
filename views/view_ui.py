@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GUI4.ui'
+# Form implementation generated from reading ui file 'GUI5.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -28,7 +28,7 @@ class Ui_mainWindow(object):
         self.history_tab = QtWidgets.QWidget()
         self.history_tab.setObjectName("history_tab")
         self.transaction_table = QtWidgets.QTableWidget(self.history_tab)
-        self.transaction_table.setGeometry(QtCore.QRect(0, 0, 811, 311))
+        self.transaction_table.setGeometry(QtCore.QRect(0, 0, 811, 281))
         self.transaction_table.setObjectName("transaction_table")
         self.transaction_table.setColumnCount(3)
         self.transaction_table.setRowCount(0)
@@ -38,6 +38,9 @@ class Ui_mainWindow(object):
         self.transaction_table.setHorizontalHeaderItem(1, item)
         item = QtWidgets.QTableWidgetItem()
         self.transaction_table.setHorizontalHeaderItem(2, item)
+        self.save_history = QtWidgets.QPushButton(self.history_tab)
+        self.save_history.setGeometry(QtCore.QRect(0, 280, 811, 21))
+        self.save_history.setObjectName("save_history")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("tab_history.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.inner_window.addTab(self.history_tab, icon1, "")
@@ -122,7 +125,7 @@ class Ui_mainWindow(object):
         self.verticalLayout.addWidget(self.balance_label)
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 828, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 828, 22))
         self.menubar.setObjectName("menubar")
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
@@ -222,6 +225,7 @@ class Ui_mainWindow(object):
         item.setText(_translate("mainWindow", "Description"))
         item = self.transaction_table.horizontalHeaderItem(2)
         item.setText(_translate("mainWindow", "Amount"))
+        self.save_history.setText(_translate("mainWindow", "Save history"))
         self.inner_window.setTabText(self.inner_window.indexOf(self.history_tab), _translate("mainWindow", "History"))
         self.clear_button.setText(_translate("mainWindow", "Clear"))
         self.send_button.setText(_translate("mainWindow", "Send"))

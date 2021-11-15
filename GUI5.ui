@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainWindow</class>
+ <widget class="QMainWindow" name="mainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>828</width>
+    <height>395</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QRL Wallet v1.4</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>views/images/logocircle.png</normaloff>views/images/logocircle.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="inner_window">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <property name="tabBarAutoHide">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="history_tab">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>tab_history.png</normaloff>tab_history.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>History</string>
+       </attribute>
+       <widget class="QTableWidget" name="transaction_table">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>811</width>
+          <height>281</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Date</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Description</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Amount</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QPushButton" name="save_history">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>280</y>
+          <width>811</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Save history</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="send_tab">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>tab_send.png</normaloff>tab_send.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Send</string>
+       </attribute>
+       <widget class="QPushButton" name="clear_button">
+        <property name="geometry">
+         <rect>
+          <x>610</x>
+          <y>270</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Clear</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="send_button">
+        <property name="geometry">
+         <rect>
+          <x>710</x>
+          <y>270</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Send</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="sendto_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Send to</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="description_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>50</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Description</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="amount_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>80</y>
+          <width>91</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Amount/fee</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="send_input">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>20</y>
+          <width>671</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="placeholderText">
+         <string>QRL address</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="description_input">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>50</y>
+          <width>671</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="placeholderText">
+         <string>Description</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="amount_input">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>80</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="cursorPosition">
+         <number>0</number>
+        </property>
+        <property name="placeholderText">
+         <string>QRL</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="fee_input">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>80</y>
+          <width>101</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="placeholderText">
+         <string>Fee (e.g. 0.1)</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="ots_key_index_input">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>110</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="cursorPosition">
+         <number>0</number>
+        </property>
+        <property name="placeholderText">
+         <string>OTS Key Index</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ots_key_index_count_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>110</y>
+          <width>101</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>OTS Key Index</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ots_key_index_label">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>110</y>
+          <width>111</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ots_warning_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>140</y>
+          <width>591</width>
+          <height>161</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;OTS Key Index Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;The OTS Key Index in the field above is estimated based on data provided by the QRL node you're connected to. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;You should never re-use the same OTS Key for more than 1 transaction.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;If you are unsure, it is safest to write down all used OTS Key Indexes, and store them in a safe place. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;With your last key you must empty your wallet. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-style:italic;&quot;&gt;If you use all of your OTS Key Indexes with funds in the wallet, these funds will be &lt;/span&gt;&lt;span style=&quot; font-size:9pt; font-weight:600; font-style:italic;&quot;&gt;lost FOREVER!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="Line" name="line">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>781</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="receive_tab">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>tab_receive.png</normaloff>tab_receive.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Receive</string>
+       </attribute>
+       <widget class="QLabel" name="public_label_title">
+        <property name="geometry">
+         <rect>
+          <x>330</x>
+          <y>20</y>
+          <width>161</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Your Public QRL Address</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="public_label_description">
+        <property name="geometry">
+         <rect>
+          <x>84</x>
+          <y>50</y>
+          <width>671</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="view_recovery_seed_btn">
+        <property name="geometry">
+         <rect>
+          <x>288</x>
+          <y>270</y>
+          <width>261</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>View recovery seed</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="qr_image_label">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>80</y>
+          <width>251</width>
+          <height>181</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="balance_label">
+      <property name="text">
+       <string>Balance: </string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>828</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionCheck_for_updates"/>
+    <addaction name="actionOfficial_website"/>
+    <addaction name="separator"/>
+    <addaction name="actionDocumentation"/>
+    <addaction name="actionQRL_whitepaper"/>
+    <addaction name="actionReport_bug"/>
+    <addaction name="separator"/>
+    <addaction name="actionDonate_to_development"/>
+   </widget>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_updates">
+   <property name="text">
+    <string>Check for updates</string>
+   </property>
+  </action>
+  <action name="actionOfficial_website">
+   <property name="text">
+    <string>Official website</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionQRL_whitepaper">
+   <property name="text">
+    <string>QRL whitepaper</string>
+   </property>
+  </action>
+  <action name="actionReport_bug">
+   <property name="text">
+    <string>Report bug</string>
+   </property>
+  </action>
+  <action name="actionDonate_to_development">
+   <property name="text">
+    <string>Donate</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionNetwork">
+   <property name="text">
+    <string>Network</string>
+   </property>
+  </action>
+  <action name="actionPlugins">
+   <property name="text">
+    <string>Plugins</string>
+   </property>
+  </action>
+  <action name="actionSign_verify_message">
+   <property name="text">
+    <string>Sign/verify message</string>
+   </property>
+  </action>
+  <action name="actionEncrypt_decrypt_message">
+   <property name="text">
+    <string>Encrypt/decrypt message</string>
+   </property>
+  </action>
+  <action name="actionPay_to_many">
+   <property name="text">
+    <string>Pay to many</string>
+   </property>
+  </action>
+  <action name="actionLoad_transaction">
+   <property name="text">
+    <string>Load transaction</string>
+   </property>
+  </action>
+  <action name="actionShow_addresses">
+   <property name="text">
+    <string>Show addresses</string>
+   </property>
+  </action>
+  <action name="actionShow_coins">
+   <property name="text">
+    <string>Show coins</string>
+   </property>
+  </action>
+  <action name="actionHide_channels">
+   <property name="text">
+    <string>Hide channels</string>
+   </property>
+  </action>
+  <action name="actionShow_contacts">
+   <property name="text">
+    <string>Show contacts</string>
+   </property>
+  </action>
+  <action name="actionInformation">
+   <property name="text">
+    <string>Information</string>
+   </property>
+  </action>
+  <action name="actionPassword">
+   <property name="text">
+    <string>Password</string>
+   </property>
+  </action>
+  <action name="actionSeed">
+   <property name="text">
+    <string>Seed</string>
+   </property>
+  </action>
+  <action name="actionPrivate_keys">
+   <property name="text">
+    <string>Private keys</string>
+   </property>
+  </action>
+  <action name="actionAddresses">
+   <property name="text">
+    <string>Addresses</string>
+   </property>
+  </action>
+  <action name="actionLabels">
+   <property name="text">
+    <string>Labels</string>
+   </property>
+  </action>
+  <action name="actionHistory">
+   <property name="text">
+    <string>History</string>
+   </property>
+  </action>
+  <action name="actionContacts">
+   <property name="text">
+    <string>Contacts</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>Find</string>
+   </property>
+  </action>
+  <action name="actionRecently_opened">
+   <property name="text">
+    <string>Recently opened</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New/Restore</string>
+   </property>
+  </action>
+  <action name="actionSave_backup">
+   <property name="text">
+    <string>Save backup</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>amount_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>fee_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>694</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ots_key_index_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>674</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>235</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>send_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>697</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>440</x>
+     <y>95</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>description_input</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>672</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

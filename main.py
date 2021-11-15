@@ -1,5 +1,5 @@
 from os import remove
-
+import csv
 from google.protobuf import message
 from models import Slaves
 from time import time
@@ -188,7 +188,6 @@ class MyWizard(QtWidgets.QWizard):
             QMessageBox.about(self, "Success!", "Correct password!")
         except ValueError:
             QMessageBox.warning(self, "Wrong password!", "You have entered the wrong password!")
-
 
     def onFinished(self):
         qrl_address = []
@@ -675,6 +674,8 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
 
+        self.save_history.clicked.connect(self.handleSavehistory)
+
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
         self.view_recovery_seed_btn.clicked.connect(self.recovery_seed_pop_up)
@@ -684,6 +685,22 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://raw.githubusercontent.com/theQRL/Whitepaper/master/QRL_whitepaper.pdf")))
         self.actionReport_bug.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/successor1/qrllight/issues")))
         self.actionDonate_to_development.triggered.connect(self.donate_popup)
+
+    def handleSavehistory(self):
+#        with open('monschedule.csv', 'wb') as stream:
+        with open('mytransactionhistory.csv', 'w') as stream:                  # 'w'
+            writer = csv.writer(stream, lineterminator='\n')          # + , lineterminator='\n'
+            for row in range(self.transaction_table.rowCount()):
+                rowdata = []
+                for column in range(self.transaction_table.columnCount()):
+                    item = self.transaction_table.item(row, column)
+                    if item is not None:
+#                        rowdata.append(unicode(item.text()).encode('utf8'))
+                        rowdata.append(item.text())                   # +
+                    else:
+                        rowdata.append('')
+
+                writer.writerow(rowdata)
 
     def button_clicked(self):
         qrl_address = []
