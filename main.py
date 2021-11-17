@@ -656,7 +656,7 @@ class LastPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle("Success!")
-
+slider_values = []
 class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidgets.QWizard, QTableWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -664,9 +664,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.setupUi(self)
         self.model = Model()
 
-        regexp_fee =  QRegExp(r'[0-9]+|([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?')
         regexp_ots_key = QRegExp(r'^[0-9]*$')
-        self.fee_validator = QRegExpValidator(regexp_fee)
         self.ots_key_validator = QRegExpValidator(regexp_ots_key)
 
         header = self.transaction_table.horizontalHeader()
@@ -675,6 +673,7 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
 
         self.save_history.clicked.connect(self.handleSavehistory)
+        self.horizontalSlider.valueChanged.connect(self.sliderChanged)
 
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
@@ -685,6 +684,13 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://raw.githubusercontent.com/theQRL/Whitepaper/master/QRL_whitepaper.pdf")))
         self.actionReport_bug.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/successor1/qrllight/issues")))
         self.actionDonate_to_development.triggered.connect(self.donate_popup)
+
+    def sliderChanged(self, value):
+        try:
+            slider_values.pop(0)
+        except:
+            pass
+        slider_values.append(value)
 
     def handleSavehistory(self):
 #        with open('monschedule.csv', 'wb') as stream:
@@ -727,29 +733,37 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             qrl_address.append(main.walletDetailsExperimental.qaddress.toPlainText())
             mnemonic.append(main.walletDetailsExperimental.mnemonic.text().rstrip())
             hexseed.append(main.walletDetailsExperimental.hexseed.text())
-        fee_validator = self.fee_validator.validate(self.fee_input.text(), 0)
         ots_key_validator = self.ots_key_validator.validate(self.ots_key_index_input.text(), 0)
 
-        if fee_validator[0] != 2:
-            QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty fee input")
-        elif ots_key_validator[0] != 2:
+        if ots_key_validator[0] != 2:
             QMessageBox.warning(self, "Warning: Incorrect Input!", "Wrong or empty OTS key input")
         else:
             remove_first_char_addrs = [e[1:] for e in self.send_input.text().split()]
             amount_string = self.amount_input.text().split()
-            amount_int = map(int, amount_string)
             amount_list = [float(i) for i in list(amount_string)]
             addrs_to = remove_first_char_addrs
             amounts = amount_list
             message_data = self.description_input.text().encode() if self.description_input.text() else None
-            fee = str(float(self.fee_input.text()) * 1000000000)[:-2]
+            try:
+                if slider_values[0] < 33:
+                    slider_values.pop(0)
+                    slider_values.append(0.001)
+                elif slider_values[0] > 33 and slider_values[0] < 66:
+                    slider_values.pop(0)
+                    slider_values.append(0.01)
+                elif slider_values[0] > 50:
+                    slider_values.pop(0)
+                    slider_values.append(1)
+            except:
+                slider_values.append(0.01)
+            fee = str(float(slider_values[0]) * 1000000000)[:-2]
             xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
             src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
             ots_key = int(self.ots_key_index_input.text())
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("Do you want to proceed?")
-            msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + self.fee_input.text() + "\nOTS Key Index: " + self.ots_key_index_input.text())
+            msg.setInformativeText("Send to: " + self.send_input.text()  +"\nAmount: " + self.amount_input.text() + "\nFee: " + str(slider_values[0]) + "\nOTS Key Index: " + self.ots_key_index_input.text())
             msg.setWindowTitle("QRL Confirmation")
             msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             returnValue = msg.exec()
