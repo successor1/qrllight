@@ -2,6 +2,7 @@ from os import remove
 import csv
 from google.protobuf import message
 from models import Slaves
+import time
 from time import time
 from views.view_ui import Ui_mainWindow
 from PyQt5 import QtWidgets
@@ -31,9 +32,10 @@ from qrl.crypto.doctest_data import *
 import random
 from models.GetMiniTransactionsByAddress import TableOutput
 from datetime import datetime
+from multiprocessing.dummy import Pool as ThreadPool
 
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-
+options = []
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -76,15 +78,39 @@ class MyWizard(QtWidgets.QWizard):
 
     def next_callback(self, page_id: int):
         if page_id == 2 and self.last_page_id == 1:
-            combo_height_short = self.createWallet.combo_height
-            combo_hash_short = self.createWallet.combo_hash
+            combo_height_short = main.createWallet.combo_height
+            combo_hash_short = main.createWallet.combo_hash
             if combo_height_short.currentIndexChanged or combo_hash_short.currentIndexChanged:
-                combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
-                combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
-            qaddress, mnemonic, hexseed = Model.getAddress(combo_height_options[combo_height_short.currentIndex()], combo_hash_options[combo_hash_short.currentIndex()])
-            self.walletDetails.qaddress.setText(qaddress)
-            self.walletDetails.mnemonic.setText(mnemonic + "\n" + "\n")
-            self.walletDetails.hexseed.setText(hexseed)
+                options.clear()
+                options.append(combo_height_short.currentIndex())
+                options.append(combo_hash_short.currentIndex())
+            main.thread = QThread()
+            # Step 3: Create a worker object
+            main.worker = Worker()
+            # Step 4: Move worker to the thread
+            main.worker.moveToThread(main.thread)
+            # Step 5: Connect signals and slots
+            main.thread.started.connect(main.worker.run)
+            main.worker.finished.connect(main.thread.quit)
+            main.worker.finished.connect(main.worker.deleteLater)
+            main.thread.finished.connect(main.thread.deleteLater)
+            # Step 6: Start the thread
+            main.thread.start()
+
+            main.button(QWizard.NextButton).setEnabled(False)
+            main.button(QWizard.BackButton).setEnabled(False)
+            main.button(QWizard.CancelButton).setEnabled(False)
+            main.worker.update_text.connect(self.evt_set_text)
+            main.thread.finished.connect(
+                lambda: main.button(QWizard.NextButton).setEnabled(True)
+            )
+            main.thread.finished.connect(
+                lambda: main.button(QWizard.BackButton).setEnabled(True)
+            )
+            main.thread.finished.connect(
+                lambda: main.button(QWizard.CancelButton).setEnabled(True)
+            )
+            main.thread.finished.connect(main.finishedThread)
         if page_id == 4 and self.last_page_id == 3:
             combo_height_short = self.createSeedByMouse.combo_height
             combo_hash_short = self.createSeedByMouse.combo_hash
@@ -131,6 +157,14 @@ class MyWizard(QtWidgets.QWizard):
             xmss_extended_seed = xmss.extended_seed
             Slaves.slave_tx_generate(xmss_pk, src_xmss, xmss_extended_seed)
         self.last_page_id = page_id
+    
+    def finishedThread(self):
+        print("Wallet generated!")
+
+    def evt_set_text(self, qadress, mnemonic, hexseed):
+        main.walletDetails.qaddress.setText(qadress)
+        main.walletDetails.mnemonic.setText(mnemonic)
+        main.walletDetails.hexseed.setText(hexseed)
     
     def saveFile(self):
         file_filter = 'Json file (*.json)'
@@ -258,6 +292,19 @@ class MyWizard(QtWidgets.QWizard):
             y += 3
             z += 3
 
+class Worker(QObject):
+    finished = pyqtSignal()
+    update_text = pyqtSignal(str, str, str)
+
+    def run(self):
+        """Long-running task."""
+        combo_height_options = {0: 8, 1: 10, 2: 12, 3: 14, 4: 16, 5: 18}
+        combo_hash_options = {0: SHAKE_128, 1: SHAKE_256, 2: SHA2_256}
+        qaddress, mnemonic, hexseed = Model.getAddress(combo_height_options[options[0]], combo_hash_options[options[1]])
+        self.update_text.emit(qaddress, mnemonic, hexseed)
+        self.finished.emit()
+
+
 class IntroPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -320,6 +367,8 @@ class CreateWallet(QtWidgets.QWizardPage):
         self.combo_height.addItem("Tree height: 16 | Signatures: 65,536")
         self.combo_height.addItem("Tree height: 18 | Signatures: 262,144")
 
+        self.note = QLabel("\nButtons will be automatically disabled while generating wallet.\nThey will be enabled again once finished.\n\nTree height larger than 14 will take longer than usual.\nPlease be patient.")
+
         self.combo_hash = QComboBox(self)
         self.combo_hash.addItem("Hash function: SHAKE_128")
         self.combo_hash.addItem("Hash function: SHAKE_256")
@@ -330,6 +379,7 @@ class CreateWallet(QtWidgets.QWizardPage):
         layout.addWidget(self.passwordline_edit)
         layout.addWidget(self.combo_height)
         layout.addWidget(self.combo_hash)
+        layout.addWidget(self.note)
 
     def nextId(self) -> int:
         return 2
@@ -366,6 +416,13 @@ class WalletDetails(QtWidgets.QWizardPage):
         self.hexseed.setFrameStyle(QFrame.Panel | QFrame.Raised)
         self.hexseed.setFrameShadow(QFrame.Plain)
         self.hexseed.setLineWidth(1)
+
+        # n = 500
+        # self.prg = QProgressBar()
+        # self.prg.setMinimum(0)
+        # self.prg.setMaximum(n)
+        # self.prg.setStyle(QStyleFactory.create("Windows"))
+        # self.prg.setTextVisible(True)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.qaddress_description)
