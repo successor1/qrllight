@@ -1,3 +1,4 @@
+from hashlib import new
 from os import remove
 import csv
 from google.protobuf import message
@@ -417,13 +418,6 @@ class WalletDetails(QtWidgets.QWizardPage):
         self.hexseed.setFrameShadow(QFrame.Plain)
         self.hexseed.setLineWidth(1)
 
-        # n = 500
-        # self.prg = QProgressBar()
-        # self.prg.setMinimum(0)
-        # self.prg.setMaximum(n)
-        # self.prg.setStyle(QStyleFactory.create("Windows"))
-        # self.prg.setTextVisible(True)
-
         layout = QVBoxLayout(self)
         layout.addWidget(self.qaddress_description)
         layout.addWidget(self.qaddress)
@@ -732,6 +726,9 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.save_history.clicked.connect(self.handleSavehistory)
         self.horizontalSlider.valueChanged.connect(self.sliderChanged)
 
+        self.custom_fee.clicked.connect(self.setCustomFee)
+        self.fee_edit.hide()
+
         self.send_button.clicked.connect(self.button_clicked)
         self.actionAbout.triggered.connect(self.about_popup)
         self.view_recovery_seed_btn.clicked.connect(self.recovery_seed_pop_up)
@@ -741,6 +738,17 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
         self.actionQRL_whitepaper.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://raw.githubusercontent.com/theQRL/Whitepaper/master/QRL_whitepaper.pdf")))
         self.actionReport_bug.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/successor1/qrllight/issues")))
         self.actionDonate_to_development.triggered.connect(self.donate_popup)
+
+    def setCustomFee(self):
+        if self.custom_fee.isChecked():
+            self.horizontalSlider.hide()
+            self.slider_label.hide()
+            self.fee_edit.show()
+        else:
+            self.fee_edit.hide()
+            self.horizontalSlider.show()
+            self.slider_label.show()
+
 
     def sliderChanged(self, value):
         try:
@@ -801,18 +809,23 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
             addrs_to = remove_first_char_addrs
             amounts = amount_list
             message_data = self.description_input.text().encode() if self.description_input.text() else None
-            try:
-                if slider_values[0] < 33:
-                    slider_values.pop(0)
-                    slider_values.append(0.001)
-                elif slider_values[0] > 33 and slider_values[0] < 66:
-                    slider_values.pop(0)
+            if self.fee_edit.text() == None or self.fee_edit.text() == "":
+                try:
+                    if slider_values[0] < 33:
+                        slider_values.pop(0)
+                        slider_values.append(0.001)
+                    elif slider_values[0] > 33 and slider_values[0] < 66:
+                        slider_values.pop(0)
+                        slider_values.append(0.01)
+                    elif slider_values[0] > 50:
+                        slider_values.pop(0)
+                        slider_values.append(1)
+                except:
                     slider_values.append(0.01)
-                elif slider_values[0] > 50:
-                    slider_values.pop(0)
-                    slider_values.append(1)
-            except:
-                slider_values.append(0.01)
+            else:
+                slider_values.clear()
+                slider_values.append(self.fee_edit.text())
+            print(slider_values[0])
             fee = str(float(slider_values[0]) * 1000000000)[:-2]
             xmss_pk = XMSS.from_extended_seed(hstr2bin(hexseed[0])).pk
             src_xmss = XMSS.from_extended_seed(hstr2bin(hexseed[0]))
