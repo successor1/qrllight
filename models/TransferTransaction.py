@@ -23,6 +23,7 @@ from qrl.core.txs.multisig.MultiSigCreate import MultiSigCreate
 from qrl.core.txs.multisig.MultiSigSpend import MultiSigSpend
 from qrl.crypto.xmss import XMSS, hash_functions
 from qrl.generated import qrl_pb2_grpc, qrl_pb2
+import main
 
 def tx_unbase64(tx_json_str):
     tx_json = json.loads(tx_json_str)
@@ -80,7 +81,7 @@ def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key
 
     # Push transaction
     print("Sending to a QRL Node...")
-    node_public_address = 'testnet-1.automated.theqrl.org:19009'
+    node_public_address = main.qrl_network[0] + '-1.automated.theqrl.org:19009'
     channel = grpc.insecure_channel(node_public_address)
     stub = qrl_pb2_grpc.PublicAPIStub(channel)
     push_transaction_req = qrl_pb2.PushTransactionReq(transaction_signed=tx.pbdata)

@@ -310,6 +310,41 @@
          <string>low        medium      high</string>
         </property>
        </widget>
+       <widget class="QRadioButton" name="custom_fee">
+        <property name="geometry">
+         <rect>
+          <x>460</x>
+          <y>80</y>
+          <width>151</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Enable custom fee</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="fee_edit">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>80</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="cursorPosition">
+         <number>0</number>
+        </property>
+        <property name="placeholderText">
+         <string>Fee</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="receive_tab">
        <attribute name="icon">

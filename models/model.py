@@ -6,6 +6,7 @@ from qrl.crypto.xmss import XMSS
 
 
 class Model:
+
     def __init__(self):
         pass
         
@@ -38,23 +39,23 @@ class Model:
         recovered_xmss = XMSS.from_extended_seed(bin_seed)
         return recovered_xmss.hexseed
     
-    def getAddressBalance(address):
-        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+    def getAddressBalance(address, network):
+        request = requests.get('https://' + network + 'explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["balance"]
 
-    def getAddressOtsKeyIndex(address):
-        request = requests.get('https://testnet-explorer.theqrl.org/api/a/'+address)
+    def getAddressOtsKeyIndex(address, network):
+        request = requests.get('https://' + network  + 'explorer.theqrl.org/api/a/'+address)
         response = request.text
         getAddressResp = json.loads(response)
         jsonResponse = getAddressResp
         return jsonResponse["state"]["used_ots_key_count"]
 
     
-    def getTransactionByHash(tx_hash):
-        request = requests.get('https://testnet-explorer.theqrl.org/api/tx/'+tx_hash)
+    def getTransactionByHash(tx_hash, network):
+        request = requests.get('https://' + network + 'explorer.theqrl.org/api/tx/'+tx_hash)
         response = request.text
         getTXResp = json.loads(response)
         jsonResponse = getTXResp

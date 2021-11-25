@@ -27,15 +27,16 @@ from qrl.services.PublicAPIService import PublicAPIService
 from qrl.generated import qrl_pb2_grpc, qrl_pb2
 import grpc
 import base64
+import main
 
 CONNECTION_TIMEOUT = 5
 
 class TableOutput:
     pass
 
-    def getMiniTransactionsByAddressHashes(qrl_address):
+    def getMiniTransactionsByAddressHashes(qrl_address, network):
         binary_qrl_address = bytes(hstr2bin(qrl_address[1:]))
-        node_public_address = 'testnet-1.automated.theqrl.org:19009'
+        node_public_address = network + '-1.automated.theqrl.org:19009'
         channel = grpc.insecure_channel(node_public_address)
         stub = qrl_pb2_grpc.PublicAPIStub(channel)
         request = qrl_pb2.GetMiniTransactionsByAddressReq(address=binary_qrl_address,
@@ -47,9 +48,9 @@ class TableOutput:
             transaction_hashes.append(response.mini_transactions[i].transaction_hash)
         return transaction_hashes
 
-    def getMiniTransactionsByAddressAmount(qrl_address):
+    def getMiniTransactionsByAddressAmount(qrl_address, network):
         binary_qrl_address = bytes(hstr2bin(qrl_address[1:]))
-        node_public_address = 'testnet-1.automated.theqrl.org:19009'
+        node_public_address = network + '-1.automated.theqrl.org:19009'
         channel = grpc.insecure_channel(node_public_address)
         stub = qrl_pb2_grpc.PublicAPIStub(channel)
         request = qrl_pb2.GetMiniTransactionsByAddressReq(address=binary_qrl_address,
@@ -62,9 +63,9 @@ class TableOutput:
         return amount
             
 
-    def GetTransactionsByAddressAddrFrom(qrl_address):
+    def GetTransactionsByAddressAddrFrom(qrl_address, network):
         binary_qrl_address = bytes(hstr2bin(qrl_address[1:]))
-        node_public_address = 'testnet-1.automated.theqrl.org:19009'
+        node_public_address = network + '-1.automated.theqrl.org:19009'
         channel = grpc.insecure_channel(node_public_address)
         stub = qrl_pb2_grpc.PublicAPIStub(channel)
         request = qrl_pb2.GetTransactionsByAddressReq(address=binary_qrl_address,
@@ -76,9 +77,9 @@ class TableOutput:
             addr_from.append("Q" + bin2hstr(response.transactions_detail[i].addr_from))
         return addr_from
 
-    def GetTransactionsByAddressAmounts(qrl_address):
+    def GetTransactionsByAddressAmounts(qrl_address, network):
         binary_qrl_address = bytes(hstr2bin(qrl_address[1:]))
-        node_public_address = 'testnet-1.automated.theqrl.org:19009'
+        node_public_address = network + '-1.automated.theqrl.org:19009'
         channel = grpc.insecure_channel(node_public_address)
         stub = qrl_pb2_grpc.PublicAPIStub(channel)
         request = qrl_pb2.GetTransactionsByAddressReq(address=binary_qrl_address,

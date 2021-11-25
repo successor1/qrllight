@@ -18,7 +18,7 @@ from views.view_ui import Ui_mainWindow
 from views.about_ui import Ui_Form
 from views.donate_ui import Ui_Form2
 import sys
-from models.model import Model
+from models.model import *
 import models.TransferTransaction
 from models.aes import AESModel
 from pyqrllib.pyqrllib import hstr2bin, SHAKE_128, SHAKE_256, SHA2_256
@@ -37,6 +37,8 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 options = []
+qrl_network = []
+explorer_network = []
 class MyWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -232,10 +234,22 @@ class MyWizard(QtWidgets.QWizard):
             qrl_address.append(main.walletDetails.qaddress.toPlainText())
             mnemonic.append(main.walletDetails.mnemonic.text().rstrip())
             hexseed.append(main.walletDetails.hexseed.text())
+            if main.introPage.combo.currentText() == "Mainnet":
+                qrl_network.append("Mainnet")
+                explorer_network.append("")
+            elif main.introPage.combo.currentText() == "Testnet":
+                qrl_network.append("Testnet")
+                explorer_network.append("testnet-")
         elif QWizard.hasVisitedPage(main, 5):
             qrl_address.append(main.data[0].split(" ")[0])
             mnemonic.append(" ".join(main.data[0].split(" ")[1:-1]))
             hexseed.append(main.data[0].split(" ")[35])
+            if main.introPage.combo.currentText() == "Mainnet":
+                qrl_network.append("Mainnet")
+                explorer_network.append("")
+            elif main.introPage.combo.currentText() == "Testnet":
+                qrl_network.append("Testnet")
+                explorer_network.append("testnet-")
         elif QWizard.hasVisitedPage(main, 6):
             if main.restoreWallet.seedline_edit.text()[:6] ==  "absorb":
                 qrl_address.append(Model.recoverAddressMnemonic(main.restoreWallet.seedline_edit.text()))
@@ -245,10 +259,22 @@ class MyWizard(QtWidgets.QWizard):
                 qrl_address.append(Model.recoverAddressHexseed(main.restoreWallet.seedline_edit.text()))
                 mnemonic.append(Model.recoverMnemonicHexseed(main.restoreWallet.seedline_edit.text()))
                 hexseed.append(main.restoreWallet.seedline_edit.text())
+            if main.introPage.combo.currentText() == "Mainnet":
+                qrl_network.append("Mainnet")
+                explorer_network.append("")
+            elif main.introPage.combo.currentText() == "Testnet":
+                qrl_network.append("Testnet")
+                explorer_network.append("testnet-")
         elif QWizard.hasVisitedPage(main, 3):
             qrl_address.append(main.walletDetailsExperimental.qaddress.toPlainText())
             mnemonic.append(main.walletDetailsExperimental.mnemonic.text().rstrip())
             hexseed.append(main.walletDetailsExperimental.hexseed.text())
+            if main.introPage.combo.currentText() == "Mainnet":
+                qrl_network.append("Mainnet")
+                explorer_network.append("")
+            elif main.introPage.combo.currentText() == "Testnet":
+                qrl_network.append("Testnet")
+                explorer_network.append("testnet-")
         mainWindow.public_label_description.setText(qrl_address[0])
         mainWindow.public_label_description.setTextInteractionFlags(Qt.TextSelectableByMouse)
         img = qrcode.make(qrl_address[0])
@@ -256,20 +282,20 @@ class MyWizard(QtWidgets.QWizard):
         mainWindow.pixmap = QPixmap('qr_code.png')
         mainWindow.qr_image_label.setPixmap(mainWindow.pixmap)
         mainWindow.qr_image_label.setScaledContents(True)
-        mainWindow.ots_key_index_input.setText(str(int(Model.getAddressOtsKeyIndex(qrl_address[0]))))
-        mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0])) / 1000000000) + " QUANTA")
+        mainWindow.ots_key_index_input.setText(str(int(Model.getAddressOtsKeyIndex(qrl_address[0], explorer_network[0]))))
+        mainWindow.balance_label.setText("Balance: " + str(float(Model.getAddressBalance(qrl_address[0], explorer_network[0])) / 1000000000) + " QUANTA")
         recoveryWindow.mnemonic_label_text.setText(mnemonic[0])
         recoveryWindow.hexseed_label_text.setText(hexseed[0])
         rowPosition = mainWindow.transaction_table.rowCount()
         transaction_hashes = []
-        transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0]))
+        transaction_hashes.append(TableOutput.getMiniTransactionsByAddressHashes(qrl_address[0], qrl_network[0]))
         timestamp_seconds = []
-        amount = TableOutput.GetTransactionsByAddressAmounts(qrl_address[0])
-        addr_from = TableOutput.GetTransactionsByAddressAddrFrom(qrl_address[0])
+        amount = TableOutput.GetTransactionsByAddressAmounts(qrl_address[0], qrl_network[0])
+        addr_from = TableOutput.GetTransactionsByAddressAddrFrom(qrl_address[0], qrl_network[0])
         message_tx = []
         date_time = []
         for x in transaction_hashes[0]:
-            resp = Model.getTransactionByHash(x)
+            resp = Model.getTransactionByHash(x, explorer_network[0])
             try:
                 timestamp_seconds.append(resp["transaction"]["header"]["timestamp_seconds"])
             except KeyError:
@@ -312,6 +338,11 @@ class IntroPage(QtWidgets.QWizardPage):
         
         self.setTitle("Welcome to Qrllight Wallet v1.4!")
 
+        self.combo = QComboBox(self)
+        self.combo.setMaximumWidth(100)
+        self.combo.addItem("Mainnet")
+        self.combo.addItem("Testnet")
+
         self.label_description = QLabel("Select option:")
         self.radiobutton_1 = QRadioButton("Create new wallet")
         self.radiobutton_2 = QRadioButton("Open wallet file")
@@ -326,6 +357,7 @@ class IntroPage(QtWidgets.QWizardPage):
         self.radiobutton_2.setChecked(True)
 
         layout = QVBoxLayout(self)
+        layout.addWidget(self.combo)
         layout.addWidget(self.label_description)
         layout.addWidget(self.radiobutton_1)
         layout.addWidget(self.radiobutton_2)
