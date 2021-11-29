@@ -37,7 +37,7 @@ def base64tohex(data):
     return hexlify(a2b_base64(data))
 
 CONNECTION_TIMEOUT = 5
-def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key):
+def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key, network):
  # Create transaction
     master_addr = None
     bytes_addrs_to = []
@@ -81,7 +81,7 @@ def tx_transfer(addrs_to, amounts, message_data, fee, xmss_pk, src_xmss, ots_key
 
     # Push transaction
     print("Sending to a QRL Node...")
-    node_public_address = main.qrl_network[0] + '-1.automated.theqrl.org:19009'
+    node_public_address = network + '-1.automated.theqrl.org:19009'
     channel = grpc.insecure_channel(node_public_address)
     stub = qrl_pb2_grpc.PublicAPIStub(channel)
     push_transaction_req = qrl_pb2.PushTransactionReq(transaction_signed=tx.pbdata)

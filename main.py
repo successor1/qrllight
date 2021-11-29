@@ -879,7 +879,8 @@ class QrlWallet(QtWidgets.QMainWindow, Ui_mainWindow, Ui_Form, Ui_Form2 , QtWidg
                     fee,
                     xmss_pk,
                     src_xmss,
-                    ots_key)
+                    ots_key,
+                    qrl_network[0])
                 QMessageBox.about(self, "Succesful transaction", "Sent!")
 
     def update(self):
