@@ -1,6 +1,8 @@
 # qrllight
 QRL lightweight wallet based on PyQt5
 
+Not audited yet, use at your own risk! I'm not responsible for any losses!
+
 # How to send to multiple recipients
 
 QRL address format: address1 address2  
